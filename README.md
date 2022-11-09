@@ -1,8 +1,6 @@
-# Datapay
+# Paydata
 
-Datapay is the simplest library for building and broadcasting data transactions to the **Bitcoin SV blockchain**.
-
-![logo](logo.png)
+Paydata is the simplest library for building and broadcasting data transactions to the **Bitcoin SV blockchain**.
 
 ---
 
@@ -10,15 +8,14 @@ Datapay is the simplest library for building and broadcasting data transactions 
 
 Post to the blockchain with just 4 lines of code. 
 
-![code](code.png)
 
 ---
 
 # Demo
 
-## 1. Datapay Transaction Composer
+## 1. Paydata Transaction Composer
 
-- [Datapay transaction composer](https://bsv.direct/lib/paydata/composer.html)
+- [Paydata transaction composer](https://bsv.direct/lib/paydata/composer.html)
 
 - [View source](example/composer.html)
 
@@ -37,7 +34,7 @@ Post to both Memo.cash and Blockpress with a single interface.
 
 ## 1. In node.js
 
-Install both `datapay` and `bsv` (Datapay has a peer dependency on bsv)
+Install both `paydata` and `bsv` (Paydata has a peer dependency on bsv2)
 
 ```
 npm install git+https://github.com/samooth/datapay
@@ -46,7 +43,7 @@ npm install git+https://github.com/samooth/datapay
 and then require it
 
 ```
-const datapay = require('datapay')
+const paydata = require('paydata')
 ```
 
 ## 2. In browser
@@ -59,14 +56,14 @@ const datapay = require('datapay')
 
 # Quickstart
 
-Send `"Hello from datapay"` to [memo.cash](https://memo.cash) in 5 lines of code.
+Send `"Hello from Paydata"` to [memo.cash](https://memo.cash) in 5 lines of code.
 
 
 ```
 const privateKey = [YOUR PRIVATE KEY HERE];
-datapay.send({
+Paydata.send({
   safe: true,
-  data: ["0x6d02", "Hello from datapay"],
+  data: ["0x6d02", "Hello from Paydata"],
   pay: { key: privateKey }
 });
 ```
@@ -77,12 +74,12 @@ Above code builds an `OP_RETURN` transaction with `0x6d02 hello` as push data, a
 
 # Declarative Programming
 
-Datapay lets you build a transaction in a declarative manner. Here's an example:
+Paydata lets you build a transaction in a declarative manner. Here's an example:
 
 ```
 var config = {
   safe: true,
-  data: ["0x6d02", "hello from datapay"],
+  data: ["0x6d02", "hello from Paydata"],
   pay: {
     key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw",
     rpc: "https://api.mattercloud.net",
@@ -97,7 +94,7 @@ var config = {
 
 Above config describes a transaction that:
 
-- Posts `"hello from datapay"` to [memo.cash](https://memo.cash) network (See the protocol at [https://memo.cash/protocol](https://memo.cash/protocol)),
+- Posts `"hello from Paydata"` to [memo.cash](https://memo.cash) network (See the protocol at [https://memo.cash/protocol](https://memo.cash/protocol)),
 - paying the fee of `400` satoshis,
 - signed with a private key: `5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw`,
 - through a public JSON-RPC endpoint at [https://api.mattercloud.net](https://api.mattercloud.net)
@@ -106,13 +103,13 @@ Above config describes a transaction that:
 All you need to do to invoke it is call:
 
 ```
-datapay.send(config)
+paydata.send(config)
 ```
 
 Want to instead build a transaction but save it for later or export it? Just call:
 
 ```
-datapay.build(config, function(error, tx) {
+paydata.build(config, function(error, tx) {
   console.log("Here's the transaction! : ", tx)
 })
 ```
@@ -123,25 +120,25 @@ And that's it! No complex APIs, but you can construct pretty much all kinds of O
 
 # How it works
 
-`datapay` is powered by [bsv](https://github.com/moneybutton/bsv), which in turn is a fork of [bitcore-lib](https://github.com/bitpay/bitcore-lib), which means all the low level transactions are completely robust and secure, since they're being used in production at companies like:
+`Paydata` is powered by [bsv](https://github.com/samooth/bsv), which in turn is a fork of [bitcore-lib](https://github.com/bitpay/bitcore-lib), which means all the low level transactions are completely robust and secure, since they're being used in production at companies like:
 
 - [Moneybutton](https://moneybutton.com)
 - [Bitpay](https://bitpay.com)
 - and more
 
-`datapay` was created in order to make it dead simple to construct `OP_RETURN` related transactions, but you can even use it to build regular transactions.
+`Paydata` was created in order to make it dead simple to construct `OP_RETURN` related transactions, but you can even use it to build regular transactions.
 
-Also `datapay` exposes `datapay.bsv` endpoint which you can use to access the underlying `bsv` library. If you need more sophisticated features (in most cases you won't), feel free to use this feature. Best of both worlds!
+Also `Paydata` exposes `Paydata.bsv` endpoint which you can use to access the underlying `bsv` library. If you need more sophisticated features (in most cases you won't), feel free to use this feature. Best of both worlds!
 
 ---
 
 # API
 
-Datapay is designed with a different philosophy than conventional Bitcoin transaction libraries.
+Paydata is designed with a different philosophy than conventional Bitcoin transaction libraries.
 
-While **traditional Bitcoin libraries focus on sending money**, datapay is focused on **sending data**.
+While **traditional Bitcoin libraries focus on sending money**, Paydata is focused on **sending data**.
 
-The API is optimized to make this as simple as possible. Datapay library has only two methods:
+The API is optimized to make this as simple as possible. Paydata library has only two methods:
 
 1. `build`: For building a transaction (but not sending)
 2. `send`: For sending a transaction
@@ -176,7 +173,7 @@ const tx = {
   safe: true,
   data: ["0x6d02", "hello world"]
 }
-datapay.build(tx, function(err, tx) {  
+daydata.build(tx, function(err, tx) {  
   /**
   * res contains the generated transaction object, powered by bsv
   * You can check it out at https://github.com/moneybutton/bsv/blob/master/lib/transaction/transaction.js
@@ -199,7 +196,7 @@ datapay.build(tx, function(err, tx) {
 
 **To use an opcode, pass an object `{op: [OPCODE]}`** (You can see the OPCODE list [here](https://github.com/moneybutton/bsv/blob/master/lib/opcode.js#L78))
 
-In above example, we can see that the first item is `"0x6d02"`. Datapay will automatically recognize this as a hex string and interpret as a hex string (while discarding the 0x prefix before the interpretation)
+In above example, we can see that the first item is `"0x6d02"`. Paydata will automatically recognize this as a hex string and interpret as a hex string (while discarding the 0x prefix before the interpretation)
 
 
 #### 2. Build from Binary Data + String
@@ -211,7 +208,7 @@ const tx = {
   safe: true,
   data: ["0x6d02", Buffer.from("Abc"), "hello world"]
 }
-datapay.build(tx, function(err, tx) {  
+paydata.build(tx, function(err, tx) {  
   /**
   * res contains the generated transaction object, powered by bsv
   * You can check it out at https://github.com/moneybutton/bsv/blob/master/lib/transaction/transaction.js
@@ -233,7 +230,7 @@ document.querySelector("input[type=file]").onchange = function(e) {
   reader.addEventListener('load', function(event) {
     // ArrayBuffer
     var ab = event.target.result
-    datapay.build({
+    paydata.build({
       data: [ "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut", ab, filetype ]
     }, function(err, res) {
       console.log("built transaction = ", res)
@@ -252,7 +249,7 @@ This is useful if you want to export a transaction and later recover it.
 const tx = {
   data: "6a04366430320b68656c6c6f20776f726c64"
 }
-datapay.build(tx, function(err, tx) {
+paydata.build(tx, function(err, tx) {
   /**
   * res contains the generated transaction object, powered by bsv
   * You can check it out at https://github.com/moneybutton/bsv/blob/master/lib/transaction/transaction.js
@@ -287,7 +284,7 @@ const tx = {
   data: ["0x6d02", "hello world"],
   pay: { key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw" }
 }
-datapay.build(tx, function(err, tx) {
+paydata.build(tx, function(err, tx) {
   /**
   * res contains the generated transaction object
   * (a signed transaction, since 'key' is included)
@@ -311,7 +308,7 @@ const tx = {
     rpc: "https://api.mattercloud.net"
   }
 };
-datapay.build(tx, function(err, res) {
+paydata.build(tx, function(err, res) {
   /**
   * res contains the generated transaction object
   * (a signed transaction, since 'key' is included)
@@ -335,7 +332,7 @@ const tx = {
     fee: 400
   }
 }
-datapay.build(tx, function(err, res) {
+paydata.build(tx, function(err, res) {
   /**
   * res contains the generated transaction object
   * (a signed transaction, since 'key' is included)
@@ -359,7 +356,7 @@ const tx = {
     feeb: 1.04
   }
 }
-datapay.build(tx, function(err, res) {
+paydata.build(tx, function(err, res) {
   /**
   * res contains the generated transaction object
   * (a signed transaction, since 'key' is included)
@@ -391,7 +388,7 @@ const tx = {
     }]
   }
 };
-datapay.build(tx, function(err, res) {
+paydata.build(tx, function(err, res) {
   /**
   * res contains the generated transaction object
   * (a signed transaction, since 'key' is included.
@@ -403,11 +400,11 @@ datapay.build(tx, function(err, res) {
 
 #### 5. `filter`
 
-By default, datapay uses ALL existing UTXOs associated with an address.
+By default, Paydata uses ALL existing UTXOs associated with an address.
 
 But sometimes you want more fine-grained control over which UTXOs to use for a transaction. For example, it is critical for UTXO-based token protocols like SLP (Simple Ledger Protocol) to make sure that a UTXO containing an SLP token transaction is ONLY used for SLP transactions. (Otherwise your token is lost)
 
-For this feature, datapay uses [Bitquery](https://docs.bitdb.network/docs/query_v3) as a filter to describe the UTXOs to filter out.
+For this feature, Paydata uses [Bitquery](https://docs.bitdb.network/docs/query_v3) as a filter to describe the UTXOs to filter out.
 
 
 ```
@@ -427,7 +424,7 @@ const tx = {
     }
   }
 }
-datapay.build(tx, function(err, tx) {
+Paydata.build(tx, function(err, tx) {
   /**
   * res contains the generated transaction object
   * (a signed transaction, since 'key' is included)
@@ -444,7 +441,7 @@ You may want to import a previously exported transaction. This is when you use t
 #### 1. Importing a transaction from exported hex string
 
 ```
-datapay.build({
+paydata.build({
   tx: "01000000014182e9844c2979d973d3e82c55d57e1a971ed2e5473557ce0414864612911aa5010000006b48304502210098f8f32cd532bc73eef1e01c3d359caf0a7aa8f3dc1eebb8011d80810c9dbe66022054c6b23d5bd9573a1e6135c39dcc31a65cab91f3b3db781995e824614e24bad9412102d024c1861ccc655ce3395bc4d8a0bdcfb929ffcd9d1a8c81d8c6fa1dfb9bd70cffffffff020000000000000000106a026d020b68656c6c6f20776f726c64c2ff0000000000001976a9142a3a6886d98776d0197611e5328ba8806c3739db88ac00000000"
 }, function(err, tx) {
   // 'tx' is a transaction object
@@ -457,7 +454,7 @@ You can export an unsigned transaction, and later import and sign it to create a
 
 ```
 // import an unsigned transaction and sign it
-datapay.build({
+paydata.build({
   tx: "01000000014182e9844c2979d973d3e82c55d57e1a971ed2e5473557ce0414864612911aa5010000006b48304502210098f8f32cd532bc73eef1e01c3d359caf0a7aa8f3dc1eebb8011d80810c9dbe66022054c6b23d5bd9573a1e6135c39dcc31a65cab91f3b3db781995e824614e24bad9412102d024c1861ccc655ce3395bc4d8a0bdcfb929ffcd9d1a8c81d8c6fa1dfb9bd70cffffffff020000000000000000106a026d020b68656c6c6f20776f726c64c2ff0000000000001976a9142a3a6886d98776d0197611e5328ba8806c3739db88ac00000000",
   pay: {
     key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw"
@@ -475,7 +472,7 @@ Notice how in addition to the `tx` attribute we've added the `pay.key` attribute
 If you already have a signed transaction object, you can simply send it away without any additional steps.
 
 ```
-datapay.send({
+paydata.send({
   tx: "01000000014182e9844c2979d973d3e82c55d57e1a971ed2e5473557ce0414864612911aa5010000006b48304502210098f8f32cd532bc73eef1e01c3d359caf0a7aa8f3dc1eebb8011d80810c9dbe66022054c6b23d5bd9573a1e6135c39dcc31a65cab91f3b3db781995e824614e24bad9412102d024c1861ccc655ce3395bc4d8a0bdcfb929ffcd9d1a8c81d8c6fa1dfb9bd70cffffffff020000000000000000106a026d020b68656c6c6f20776f726c64c2ff0000000000001976a9142a3a6886d98776d0197611e5328ba8806c3739db88ac00000000"
 }, function(err, hash) {
   // 'hash' is the transaction hash
@@ -501,7 +498,7 @@ const tx = {
   data: ["0x6d02", "hello world"])
   pay: { key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw" }
 }
-datapay.send(tx, function(err, res) {
+paydata.send(tx, function(err, res) {
   console.log(res)
 })
 ```
@@ -515,12 +512,12 @@ const tx = {
   safe: true,
   data: ["0x6d02", "hello world"]
 }
-datapay.build(tx, function(err, res) {
+paydata.build(tx, function(err, res) {
   exportedTxHex = res;
 })
 
 // Later import exportedTxHex and sign it with privatkey, and broadcast, all in one method:
-datapay.send({
+paydata.send({
   tx: exportedTx,
   pay: { key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw" }
 }, function(err, hash) {
@@ -541,12 +538,12 @@ const tx = {
   data: ["0x6d02", "hello world"],
   pay: { key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw" }
 }
-datapay.build(tx, function(err, res) {
+paydata.build(tx, function(err, res) {
   exportedSignedTxHex = res;
 })
 
 // Later import exportedTxHex and broadcast, all in one method:
-datapay.send({
+paydata.send({
   tx: exportedSignedTx,
 }, function(err, hash) {
   // hash contains the transaction hash after the broadcast
@@ -557,26 +554,26 @@ datapay.send({
 
 # Advanced
 
-Datapay depends on two powerful libraries for low level stuff.
+Paydata depends on two powerful libraries for low level stuff.
 
 1. bsv: https://github.com/moneybutton/bsv
 2. bitcore-explorers: https://github.com/bitpay/bitcore-explorers
 
-While Datapay is designed to be the simplest possible way to write data to the blockchain, you may want to sometimes access the low level libraries that power datapay.
+While Paydata is designed to be the simplest possible way to write data to the blockchain, you may want to sometimes access the low level libraries that power Paydata.
 
-Datapay exposes additional endpoints so you can simply access these libraries without having to install or include any additional libraries.
+Paydata exposes additional endpoints so you can simply access these libraries without having to install or include any additional libraries.
 
-## 1. datapay.bsv
+## 1. Paydata.bsv
 
 This endpoint exposes the [bsv](https://github.com/moneybutton/bsv) library object. Basically by referncing `bsv` you have access to the entire bsv library.
 
 ```
-const privateKey = new datapay.bsv.PrivateKey();
+const privateKey = new Paydata.bsv.PrivateKey();
 const address = privateKey.toAddress();
 console.log(address.toString()) // 15WZwpw3BofscM2u43ji85BXucai5YGToL
 ```
 
-## 2. datapay.connect
+## 2. Paydata.connect
 
 This endpoint is used to access the [bitcore-explorers](https://github.com/bitpay/bitcore-explorers) library.
 
@@ -585,7 +582,7 @@ Using this endpoint you can connect to a public JSON-RPC endpoint to let you mak
 ### Syntax
 
 ```
-datapay.connect([RPC ENDPOINT]).[METHOD]
+paydata.connect([RPC ENDPOINT]).[METHOD]
 ```
 
 If you leave the `RPC ENDPOINT` part out, it will automatically use the default https://api.mattercloud.net node
@@ -593,7 +590,7 @@ If you leave the `RPC ENDPOINT` part out, it will automatically use the default 
 ### Example 1: Connecting to default node and calling `getUnspentUtxos()` method:
 
 ```
-datapay.connect().getUnspentUtxos("14xMz8rKm4L83RuZdmsHXD2jvENZbv72vR", function(err, utxos) {
+paydata.connect().getUnspentUtxos("14xMz8rKm4L83RuZdmsHXD2jvENZbv72vR", function(err, utxos) {
   if (err) {
     console.log("Error: ", err)
   } else {
@@ -605,7 +602,7 @@ datapay.connect().getUnspentUtxos("14xMz8rKm4L83RuZdmsHXD2jvENZbv72vR", function
 ### Example 2. Specifying a JSON-RPC endpoint
 
 ```
-datapay.connect('https://api.mattercloud.net').getUnspentUtxos("14xMz8rKm4L83RuZdmsHXD2jvENZbv72vR", function(err, utxos) {
+paydata.connect('https://api.mattercloud.net').getUnspentUtxos("14xMz8rKm4L83RuZdmsHXD2jvENZbv72vR", function(err, utxos) {
   if (err) {
     console.log("Error: ", err)
   } else {
