@@ -18,7 +18,7 @@ Post to the blockchain with just 4 lines of code.
 
 ## 1. Datapay Transaction Composer
 
-- [Datapay transaction composer](https://unwriter.github.io/datapay/example/composer)
+- [Datapay transaction composer](https://bsv.direct/lib/paydata/composer.html)
 
 - [View source](example/composer.html)
 
@@ -26,7 +26,7 @@ Post to the blockchain with just 4 lines of code.
 
 Post to both Memo.cash and Blockpress with a single interface.
 
-- [DEMO](https://unwriter.github.io/datapay/example/playground)
+- [DEMO](https://bsv.direct/lib/paydata/composer.html)
 
 - [View source](example/playground.html)
 
@@ -40,8 +40,7 @@ Post to both Memo.cash and Blockpress with a single interface.
 Install both `datapay` and `bsv` (Datapay has a peer dependency on bsv)
 
 ```
-npm install --save datapay
-npm install --save bsv
+npm install git+https://github.com/samooth/datapay
 ```
 
 and then require it
@@ -53,7 +52,7 @@ const datapay = require('datapay')
 ## 2. In browser
 
 ```
-<script src='https://unpkg.com/datapay@0.0.15/dist/datapay.min.js'></script>
+<script src='https://bsv.direct/lib/paydata.min.js'></script>
 ```
 
 ---
