@@ -8,6 +8,13 @@ Paydata is the simplest library for building and broadcasting data transactions 
 
 Post to the blockchain with just 4 lines of code. 
 
+```
+Paydata.send({
+  safe: true,
+  data: ["0x6d02", "Hello from Paydata"],
+  pay: { key: privateKey }
+});
+```
 
 ---
 
