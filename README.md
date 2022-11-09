@@ -68,7 +68,7 @@ Send `"Hello from Paydata"` to [memo.cash](https://memo.cash) in 5 lines of code
 
 ```
 const privateKey = [YOUR PRIVATE KEY HERE];
-Paydata.send({
+paydata.send({
   safe: true,
   data: ["0x6d02", "Hello from Paydata"],
   pay: { key: privateKey }
