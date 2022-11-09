@@ -26,7 +26,7 @@ Post to the blockchain with just 4 lines of code.
 
 Post to both Memo.cash and Blockpress with a single interface.
 
-- [DEMO](https://bsv.direct/lib/paydata/composer.html)
+- [DEMO](https://bsv.direct/lib/paydata/playground.html)
 
 - [View source](example/playground.html)
 
