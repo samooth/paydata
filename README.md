@@ -89,7 +89,7 @@ var config = {
   data: ["0x6d02", "hello from Paydata"],
   pay: {
     key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw",
-    rpc: "https://api.mattercloud.net",
+    rpc: "https://api.whatsonchain.com",
     fee: 400,
     to: [{
       address: "1A2JN4JAUoKCQ5kA4pHhu4qCqma8jZSU81",

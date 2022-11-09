@@ -1,5 +1,5 @@
 {
-  "name": "datapay",
+  "name": "paydata",
   "version": "0.2.0",
   "description": "post data over bitcoin sv",
   "main": "index.js",
