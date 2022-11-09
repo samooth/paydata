@@ -61,6 +61,7 @@ textarea {
   padding: 10px 30px;
 }
 #sent a {
+  color: gold;
   text-decoration: none;
 }
 #how {
@@ -75,9 +76,13 @@ textarea {
 }
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://unpkg.com/datapay@0.0.17/dist/datapay.min.js"></script>
+<script src="https://bsv.direct/lib/paydata.min.js"></script>
+
 <script>
-var endpoint = "https://api.mattercloud.net/api/v3/main/tx/send"; // alternative: 'https://api.whatsonchain.com/v1/bsv/main/tx/raw'
+const bsvjs = paydata.bsv
+var laTx
+var network="main"
+var endpoint = `https://api.bsv.direct/e1/`; // alternative: 'https://api.whatsonchain.com/v1/bsv/main/tx/raw'
 var rawTxKey = 'rawtx'; // use 'txhex' for api.whatsonchain.com
 var apiKey = ''; // only needed for api.mattercloud.net when exeeding 3 tx per 15 seconds.
                  // Get the API key from https://www.mattercloud.net/#get-api-key
@@ -91,22 +96,28 @@ document.addEventListener("DOMContentLoaded", function(event) {
     update(e.target.value)
   }
   howEl.onclick = function(e) {
-    alert("The first column is where you declaratively describe your transaction (See datapay documentation). The second column is where the generated transaction is displayed. The third column displays the actual hex encoded string that can be broadcasted to Bitcoin SV network. The default transaction description is just a simple data-only OP_RETURN transaction which only spends 300 satoshi transaction fee and nothing more, but you can experiment with different options as well. WARNING: THIS ACTUALLY WORKS, SO HANDLE WITH CARE.")
+    alert("The first column is where you declaratively describe your transaction (See paydata documentation). The second column is where the generated transaction is displayed. The third column displays the actual hex encoded string that can be broadcasted to Bitcoin SV network. The default transaction description is just a simple data-only OP_RETURN transaction which only spends 300 satoshi transaction fee and nothing more, but you can experiment with different options as well. WARNING: THIS ACTUALLY WORKS, SO HANDLE WITH CARE.")
     return false;
   }
   var update = function(html) {
     var h = html.replace(/\n/g, '');
-    datapay.build(JSON.parse(h), function(err, tx) {
-      txEl.value = JSON.stringify(tx.toObject(), null, 2);
-      hexEl.value = tx.toString()
+    network = JSON.parse(h).testnet? "test":"main";
+    paydata.build(JSON.parse(h), function(err, tx) {
+      tx= bsvjs.Tx.fromBr(new bsvjs.Br(bsvjs.deps.Buffer.from(tx,"hex")))
+      txEl.value = JSON.stringify(tx.toJSON(), null, 2);
+      hexEl.value = tx.toHex()
+      laTx=tx
     })
   }
   sendEl.onclick = function(e) {
-    var t = hexEl.value;
-    var isvalid = new datapay.bsv.Transaction(t).verify();
-    if (isvalid) {
-      send(t)
-    }
+    var t = laTx;
+    console.log("t",t)
+    var isvalid = new paydata.bsv.TxVerifier({ tx: t });
+
+   // console.log(isvalid.verify( ).getDebugString ())
+ //   if (isvalid.verify( )) {
+      send(t.toHex())
+   // }
     return false;
   }
   update(dslEl.value)
@@ -119,18 +130,19 @@ var send = function(transaction) {
 
   if (apiKey.length > 0)
     header.apikey = apiKey;
-  
-  fetch(endpoint, {
+  //paydata.connect(network).broadcast()
+  /*
+  fetch(`${endpoint}${network}/tx/raw`, {
     headers: header,
     method: 'POST',
-    body: `{"${rawTxKey}": "${transaction.toString()}"}`
-  })
-  .then(function(res) {
-    return res.json();
-  })
+    body: `{"${rawTxKey}": "${transaction}"}`
+  })*/
+  console.log("Broadcasting... ",transaction)
+  paydata.connect(network).broadcast(transaction)
   .then(function(response) {
     console.log(response);
-    document.querySelector("#sent").innerHTML = "<a href='https://whatsonchain.com/tx/" + response.txid + "' target='_blank'>Success! Click to view Transaction</a>";
+    let prefix = network=="test" ? "test":"";
+    document.querySelector("#sent").innerHTML = `<a href='https://${prefix}.whatsonchain.com/tx/${response.txid}' target='_blank'>Success! Click to view Transaction</a>`;
     document.querySelector("#sent").className = "";
     document.querySelector("#send").className = "hidden";
   })
@@ -142,7 +154,7 @@ var send = function(transaction) {
 <div class='header'>Transaction Description</div>
 <textarea id='dsl'>
 {
-  "data": ["0x6d02", "post to memo.cash!"],
+  "data": ["paydata", "test 1... 2... 3..."],
   "pay": {
     "key": ""
   }

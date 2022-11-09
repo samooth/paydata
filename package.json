@@ -1,11 +1,11 @@
 {
   "name": "datapay",
-  "version": "0.0.22",
+  "version": "0.0.31",
   "description": "post data over bitcoin sv",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "build": "browserify index.js --standalone datapay > dist/datapay.js && uglifyjs dist/datapay.js > dist/datapay.min.js"
+    "build": "browserify index.js --standalone paydata > dist/paydata.js && uglifyjs dist/paydata.js > dist/paydata.min.js",
   },
   "keywords": [
     "bsv",
@@ -14,24 +14,25 @@
     "blockchain",
     "cryptocurrency"
   ],
-  "author": "unwriter",
+  "author": "samooth",
   "license": "MIT",
   "unpkg": "dist/datapay.min.js",
   "dependencies": {
-    "bitcore-explorers": "^1.0.1",
-    "bsv": "^1.2.0",
-    "buffer": "^5.2.1",
-    "mingo": "^2.2.4"
-  },
-  "peerDependencies": {
-    "bsv": "^1.2.0"
+    "bsv": "^2.0.10",
+    "buffer": "^6.0.3",
+    "mingo": "^6.1.0"
   },
   "files": [
     "dist"
   ],
   "devDependencies": {
-    "dotenv": "^6.2.0",
-    "mocha": "^5.1.1",
-    "uglify-es": "^3.3.9"
+    "crypto-browserify": "^3.12.0",
+    "dotenv": "^16.0.1",
+    "events": "^3.3.0",
+    "mocha": "^10.0.0",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "uglify-es": "^3.3.9",
+    "util": "^0.12.4"
   }
 }
