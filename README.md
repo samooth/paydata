@@ -104,7 +104,7 @@ Above config describes a transaction that:
 - Posts `"hello from Paydata"` to [memo.cash](https://memo.cash) network (See the protocol at [https://memo.cash/protocol](https://memo.cash/protocol)),
 - paying the fee of `400` satoshis,
 - signed with a private key: `5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw`,
-- through a public JSON-RPC endpoint at [https://api.mattercloud.net](https://api.mattercloud.net)
+- through a public JSON-RPC endpoint at [https://api.bitails.net](https://api.bitails.net)
 - while tipping the user `1A2JN4JAUoKCQ5kA4pHhu4qCqma8jZSU81` a value of `1000` satoshis.
 
 All you need to do to invoke it is call:
@@ -304,7 +304,7 @@ paydata.build(tx, function(err, tx) {
 
 The `rpc` attribute is used to manually set the JSON-RPC endpoint you wish to broadcast through. 
 
-- default: `https://api.mattercloud.net`
+- default: `https://api.bitails.net`
 
 ```
 const tx = {
@@ -312,7 +312,7 @@ const tx = {
   data: ["0x6d02", "hello world"],
   pay: {
     key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw",
-    rpc: "https://api.mattercloud.net"
+    rpc: "https://api.bitails.net"
   }
 };
 paydata.build(tx, function(err, res) {
@@ -335,7 +335,7 @@ const tx = {
   data: ["0x6d02", "hello world"],
   pay: {
     key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw",
-    rpc: "https://api.mattercloud.net",
+    rpc: "https://api.bitails.net",
     fee: 400
   }
 }
@@ -359,7 +359,7 @@ const tx = {
   data: ["0x6d02", "hello world"],
   pay: {
     key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw",
-    rpc: "https://api.mattercloud.net",
+    rpc: "https://api.bitails.net",
     feeb: 1.04
   }
 }
@@ -564,7 +564,7 @@ paydata.send({
 Paydata depends on two powerful libraries for low level stuff.
 
 1. bsv: https://github.com/moneybutton/bsv
-2. bitcore-explorers: https://github.com/bitpay/bitcore-explorers
+2. bitails wrapper: https://github.com/samooth/bitails
 
 While Paydata is designed to be the simplest possible way to write data to the blockchain, you may want to sometimes access the low level libraries that power Paydata.
 
@@ -582,9 +582,9 @@ console.log(address.toString()) // 15WZwpw3BofscM2u43ji85BXucai5YGToL
 
 ## 2. Paydata.connect
 
-This endpoint is used to access the [bitcore-explorers](https://github.com/bitpay/bitcore-explorers) library.
+This endpoint is used to access the [bitcore-explorers](https://github.com/samooth/bitails) library.
 
-Using this endpoint you can connect to a public JSON-RPC endpoint to let you make various direct JSON-RPC function calls such as `getUnspentUtxos`, etc. (Basically it instantiates and returns the `insight` object from https://github.com/bitpay/bitcore-explorers)
+Using this endpoint you can connect to a public JSON-RPC endpoint to let you make various direct JSON-RPC function calls such as `getUnspentUtxos`, etc. (Basically it instantiates and returns the `Bitails` object from https://github.com/samooth/bitails)
 
 ### Syntax
 
@@ -592,7 +592,7 @@ Using this endpoint you can connect to a public JSON-RPC endpoint to let you mak
 paydata.connect([RPC ENDPOINT]).[METHOD]
 ```
 
-If you leave the `RPC ENDPOINT` part out, it will automatically use the default https://api.mattercloud.net node
+If you leave the `RPC ENDPOINT` part out, it will automatically use the default https://api.bitails.net node
 
 ### Example 1: Connecting to default node and calling `getUnspentUtxos()` method:
 
@@ -609,7 +609,7 @@ paydata.connect().getUnspentUtxos("14xMz8rKm4L83RuZdmsHXD2jvENZbv72vR", function
 ### Example 2. Specifying a JSON-RPC endpoint
 
 ```
-paydata.connect('https://api.mattercloud.net').getUnspentUtxos("14xMz8rKm4L83RuZdmsHXD2jvENZbv72vR", function(err, utxos) {
+paydata.connect('https://api.bitails.net').getUnspentUtxos("14xMz8rKm4L83RuZdmsHXD2jvENZbv72vR", function(err, utxos) {
   if (err) {
     console.log("Error: ", err)
   } else {
