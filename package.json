@@ -1,12 +1,12 @@
 {
   "name": "paydata",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "post data over bitcoin sv",
   "main": "index.js",
   "scripts": {
-    "test": "npx mocha --timeout 60000",
+    "test": "npx mocha",
     "generate-docs": "jsdoc --configure jsdoc.json --verbose -R README.md index.js",
-    "build": "browserify index.js --standalone paydata > dist/paydata.js && uglifyjs dist/paydata.js > dist/paydata.min.js"
+    "build": "npx browserify index.js --standalone paydata > dist/paydata.js && uglifyjs dist/paydata.js > dist/paydata.min.js"
   },
   "keywords": [
     "bsv",

@@ -21,7 +21,7 @@ var build = function(options, callback) {
         // and the request is trying to override using 'data' or 'pay',
         // we should throw an error
         //let tx = bitcoin.Tx.fromBr( new bitcoin.Br(Buffer.from(options.tx, "hex")))
-        let tx = bitcoin.Tx.fromHex(options.tx)
+        let tx = bitcoin.Tx.fromBr( new bitcoin.Br(Buffer.from(options.tx,"hex") ) )
 
         // transaction is already signed
         if (tx.txIns.length > 0 && tx.txIns[0].script) {
@@ -34,9 +34,7 @@ var build = function(options, callback) {
 
         // construct script only if transaction doesn't exist
         // if a 'transaction' attribute exists, the 'data' should be ignored to avoid confusion
-        if (options.data) {
-            console.log("we got data", options.data)
-            
+        if (options.data) {            
             script = _script(options)
         }
     }
@@ -73,15 +71,17 @@ var build = function(options, callback) {
             let tx
 
             let builder = new bitcoin.TxBuilder();
-            console.log(options)
+          //  console.log(options)
             if (options.tx) {
-                console.log("tenemos Tx")
-                tx = new bitcoin.Tx.fromHex(options.tx, "hex")
-                builder.importPartiallySignedTx(tx)
+               // console.log("tenemos Tx")
+               // console.log("---->", options.tx)
+                tx = bitcoin.Tx.fromBr( new bitcoin.Br(Buffer.from(options.tx,"hex") ) )
+
             } else {
                 tx = new bitcoin.Tx()
-                builder.tx = tx
             }
+            builder.tx = tx
+
             builder.setFeePerKbNum(50)
             builder.dust = 0
 
@@ -140,7 +140,7 @@ var build = function(options, callback) {
 
 
 
-            callback(null, builder.tx.toHex());
+            callback(null, builder.tx.toHex() );
         }
 
         let utxoSet=Array()
@@ -155,8 +155,16 @@ var build = function(options, callback) {
     } else {
         // key doesn't exist => create an unsigned transaction
         let fee = (options.pay && options.pay.fee) ? options.pay.fee : defaults.fee;
+        
         let tx = new bitcoin.Tx()
+            //console.log(options)
+            if (options.tx) {
+              //  console.log("tenemos Tx")
+               // console.log("---->", options.tx)
+                tx = bitcoin.Tx.fromBr( new bitcoin.Br(Buffer.from(options.tx,"hex") ) )
+            }
         let builder = new bitcoin.TxBuilder(tx);
+            
         builder.setFeePerKbNum(fee)
         builder.dust = 0
 
@@ -178,7 +186,7 @@ var build = function(options, callback) {
             })
         }
         builder.buildOutputs()
-        callback(null, builder.tx.toHex())
+        callback(null, builder.tx.toHex() )
     }
 }
 var send = function(options, callback) {
