@@ -6,19 +6,24 @@ const datapay = require('../index');
 // Private Key for Demo Purpose Only
 const privKey = process.env.privKey
 
+
 var utxoSize;
 describe('datapay', function() {
+
   beforeEach(function(done) {
-    const address = new bitcoin.PrivateKey(privKey).toAddress()
-    datapay.connect().getUnspentUtxos(address, function(err, utxos) {
-      if (err) {
+
+    const address = bitcoin.Address.fromPrivKey(bitcoin.PrivKey.fromString(privKey)).toString()
+    const explorer = datapay.connect()
+    
+    explorer.utxos(address).then((utxos)=>{
+      if (!utxos) {
         console.log("Error: ", err)
       } else {
-        utxoSize = utxos.length
         done()
       }
     })
   })
+
   describe('build', function() {
     describe('safe as default', function() {
       it('safe as default', function(done) {
@@ -26,7 +31,9 @@ describe('datapay', function() {
           data: [{op: 78}, "hello world"]
         }
         datapay.build(options, function(err, tx) {
+
           let generated = tx.toObject()
+          console.log("generated.outputs[0].script",generated.outputs[0].script)
           let s = new bitcoin.Script(generated.outputs[0].script).toString()
           assert(s.startsWith("OP_0 OP_RETURN OP_PUSHDATA4 1818585099"))
           done()
@@ -137,7 +144,7 @@ describe('datapay', function() {
     })
     describe('pay only', function() {
       it('to', function(done) {
-        const address = new bitcoin.PrivateKey(privKey).toAddress()
+        const address = bitcoin.Address.fromPrivKey(bitcoin.PrivKey(privKey)).toString()
         const options = {
           pay: {
             key: privKey,
@@ -179,7 +186,7 @@ describe('datapay', function() {
 
           // script sends the money to the same address as the sender
           // specified by the private key
-          const address = new bitcoin.PrivateKey(privKey).toAddress()
+          const address = new bitcoin.PrivKey(privKey).toAddress()
           assert.equal(address.toString(), s.toAddress().toString())
 
           done()
@@ -223,6 +230,7 @@ describe('datapay', function() {
       **/
 
     })
+
     describe('data and pay', function() {
       it('both data and pay', function(done) {
         const options = {
@@ -253,7 +261,7 @@ describe('datapay', function() {
 
           // script sends the money to the same address as the sender
           // specified by the private key
-          const address = new bitcoin.PrivateKey(privKey).toAddress()
+          const address = new bitcoin.PrivKey(privKey).toAddress()
           assert.equal(address.toString(), s2.toAddress().toString())
 
           done()
@@ -296,7 +304,7 @@ describe('datapay', function() {
 
           // script sends the money to the same address as the sender
           // specified by the private key
-          const address = new bitcoin.PrivateKey(privKey).toAddress()
+          const address = new bitcoin.PrivKey(privKey).toAddress()
           assert.equal(address.toString(), s2.toAddress().toString())
 
           done()
@@ -308,7 +316,7 @@ describe('datapay', function() {
     describe('attach coins to data', function() {
       it('paying tip to 1 user', function(done) {
         // send to myself
-        const receiver = new bitcoin.PrivateKey(privKey).toAddress()
+        const receiver = new bitcoin.PrivKey(privKey).toAddress()
 
         const options = {
           data: ["0x6d02", "hello world"],
@@ -344,7 +352,7 @@ describe('datapay', function() {
       })
       it('paying tip to 2 users', function(done) {
         // send to myself
-        const receiver = new bitcoin.PrivateKey(privKey).toAddress()
+        const receiver = new bitcoin.PrivKey(privKey).toAddress()
 
         const options = {
           data: ["0x6d02", "hello world"],
@@ -540,7 +548,7 @@ describe('datapay', function() {
               assert(script.isPublicKeyHashIn())
               // the imported transaction's input script address should match
               // the address corresponding to the originally imported private key
-              const address = new bitcoin.PrivateKey(privKey).toAddress()
+              const address = new bitcoin.PrivKey(privKey).toAddress()
               assert.equal(address.toString(), script.toAddress().toString())
               done()
             })
@@ -625,19 +633,19 @@ describe('datapay', function() {
     describe('bitcoin', function() {
       it('exposes bitcoin', function() {
         assert(datapay.bsv.Networks)
-        assert(datapay.bsv.Opcode)
+        assert(datapay.bsv.OpCode)
       })
     })
     describe('connect', function() {
       it('default', function() {
-        var insight = datapay.connect();
-        assert.equal(insight.constructor.name, "Insight")
-        assert.equal(insight.url, 'https://api.mattercloud.net')
+        var explorer = datapay.connect();
+        assert.equal(explorer.constructor.name, "Explorer")
+        assert.equal(explorer.url, 'https://api.bitails.net')
       })
       it('connect with url', function() {
-        var insight = datapay.connect('https://api.mattercloud.net');
-        assert.equal(insight.constructor.name, "Insight")
-        assert.equal(insight.url, 'https://api.mattercloud.net')
+        var explorer = datapay.connect('https://api.bitails.net');
+        assert.equal(explorer.constructor.name, "Explorer")
+        assert.equal(explorer.url, 'https://api.bitails.net')
       })
     })
   })

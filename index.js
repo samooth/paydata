@@ -79,11 +79,9 @@ var build = function(options, callback) {
                 tx = new bitcoin.Tx.fromHex(options.tx, "hex")
                 builder.importPartiallySignedTx(tx)
             } else {
-                                console.log("no tenemos Tx")
-
                 tx = new bitcoin.Tx()
+                builder.tx = tx
             }
-            builder.tx= tx
             builder.setFeePerKbNum(50)
             builder.dust = 0
 
