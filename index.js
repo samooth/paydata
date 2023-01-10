@@ -3,7 +3,6 @@ const bitcoin = require('bsv');
 const _Buffer = bitcoin.deps.Buffer
 //const explorer = require('bitcore-explorers');
 const Explorer = require('../bitails/src/index.js');
-
 const defaults = {
     rpc: "api.bsv.direct/e2",
     fee: 50,
@@ -21,7 +20,7 @@ var build = function(options, callback) {
         // and the request is trying to override using 'data' or 'pay',
         // we should throw an error
         //let tx = bitcoin.Tx.fromBr( new bitcoin.Br(Buffer.from(options.tx, "hex")))
-        let tx = bitcoin.Tx.fromBr( new bitcoin.Br(Buffer.from(options.tx,"hex") ) )
+        let tx = bitcoin.Tx.fromBr(new bitcoin.Br(_Buffer.from(options.tx, "hex")))
 
         // transaction is already signed
         if (tx.txIns.length > 0 && tx.txIns[0].script) {
@@ -34,7 +33,7 @@ var build = function(options, callback) {
 
         // construct script only if transaction doesn't exist
         // if a 'transaction' attribute exists, the 'data' should be ignored to avoid confusion
-        if (options.data) {            
+        if (options.data) {
             script = _script(options)
         }
     }
@@ -53,7 +52,7 @@ var build = function(options, callback) {
         let network = options.testnet ? "test" : "main";
 
         const explorer = new Explorer(network);
-        const makeTx = (res)=>{
+        const makeTx = (res) => {
 
             if (!res) {
                 callback(err);
@@ -71,11 +70,9 @@ var build = function(options, callback) {
             let tx
 
             let builder = new bitcoin.TxBuilder();
-          //  console.log(options)
+            //  console.log(options)
             if (options.tx) {
-               // console.log("tenemos Tx")
-               // console.log("---->", options.tx)
-                tx = bitcoin.Tx.fromBr( new bitcoin.Br(Buffer.from(options.tx,"hex") ) )
+                tx = bitcoin.Tx.fromBr(new bitcoin.Br(_Buffer.from(options.tx, "hex")))
 
             } else {
                 tx = new bitcoin.Tx()
@@ -90,10 +87,10 @@ var build = function(options, callback) {
             }
             if (options.pay && Array.isArray(options.pay.to)) {
                 options.pay.to.forEach(function(receiver) {
-                    let dAddress=""
+                    let dAddress = ""
                     if (options.testnet) {
                         dAddress = bitcoin.Address.Testnet.fromString(receiver.address)
-                    }else {
+                    } else {
                         dAddress = bitcoin.Address.fromString(receiver.address)
                     }
                     builder.outputToAddress(new bitcoin.Bn(receiver.value), dAddress)
@@ -110,9 +107,7 @@ var build = function(options, callback) {
                     address.toTxOutScript()
                 )
 
-                const fundTxHashBuf = Buffer.from(utxo.txid, 'hex').reverse()
-
-                //tx.addTxIn(fundTxHashBuf, utxo.vout,  address.toTxOutScript( ) )
+                const fundTxHashBuf = _Buffer.from(utxo.txid, 'hex').reverse()
 
                 builder.inputFromPubKeyHash(fundTxHashBuf, utxo.vout, fundTxOut)
 
@@ -122,8 +117,8 @@ var build = function(options, callback) {
 
 
             let laTx = builder.build({ useAllInputs: true })
-    //Filter the tx for some requirements
-        /*
+            //Filter the tx for some requirements
+            /*
       for(var i=0;i<tx.outputs.length;i++){
         if(tx.outputs[i]._satoshis>0 && tx.outputs[i]._satoshis<546){
           tx.outputs.splice(i,1);
@@ -136,35 +131,33 @@ var build = function(options, callback) {
             // build tx
 
             let opt_pay = options.pay || {};
-           // let myfee = opt_pay.fee || Math.ceil(builder.estimateSize() * (opt_pay.feeb || defaults.feeb));
+            // let myfee = opt_pay.fee || Math.ceil(builder.estimateSize() * (opt_pay.feeb || defaults.feeb));
 
-
-
-            callback(null, builder.tx.toHex() );
+            // Adding option to return tx on bsv format if specified
+            let returnThis = options.format === "hex" ?  builder.tx.toHex() : builder.tx;
+            callback(null, returnThis);
         }
 
-        let utxoSet=Array()
+        let utxoSet = Array()
         let offset = 0
 
-        explorer.utxos(address.toString(),0,100).then((res) => {
+        explorer.utxos(address.toString(), 0, 100).then((res) => {
             makeTx(res)
-         
+
         })
 
 
     } else {
         // key doesn't exist => create an unsigned transaction
         let fee = (options.pay && options.pay.fee) ? options.pay.fee : defaults.fee;
-        
+
         let tx = new bitcoin.Tx()
-            //console.log(options)
-            if (options.tx) {
-              //  console.log("tenemos Tx")
-               // console.log("---->", options.tx)
-                tx = bitcoin.Tx.fromBr( new bitcoin.Br(Buffer.from(options.tx,"hex") ) )
-            }
+        if (options.tx) {
+            // options.tx can be hexstring or buffer
+            tx = typeof options.tx === "string" ? bsv.Tx.fromHex(options.tx) : bsv.Tx.fromBr(new bsv.Br(options.tx))
+        }
         let builder = new bitcoin.TxBuilder(tx);
-            
+
         builder.setFeePerKbNum(fee)
         builder.dust = 0
 
@@ -176,17 +169,20 @@ var build = function(options, callback) {
         if (options.pay && Array.isArray(options.pay.to)) {
             options.pay.to.forEach(function(receiver) {
 
-                    let dAddress=""
-                    if (options.testnet) {
-                        dAddress = bitcoin.Address.Testnet.fromString(receiver.address)
-                    }else {
-                        dAddress = bitcoin.Address.fromString(receiver.address)
-                    }
+                let dAddress = ""
+                if (options.testnet) {
+                    dAddress = bitcoin.Address.Testnet.fromString(receiver.address)
+                } else {
+                    dAddress = bitcoin.Address.fromString(receiver.address)
+                }
                 tx.addTxOut(new bitcoin.Bn(receiver.value), dAddress)
             })
         }
         builder.buildOutputs()
-        callback(null, builder.tx.toHex() )
+        // Adding option to return tx on bsv format if specified
+        let returnThis = options.format === "hex" ? builder.tx.toHex(): builder.tx ;
+        callback(null, returnThis);
+
     }
 }
 var send = function(options, callback) {
@@ -199,16 +195,16 @@ var send = function(options, callback) {
             callback(err);
             return;
         }
-
         let rpcaddr = (options.pay && options.pay.rpc) ? options.pay.rpc : defaults.rpc;
         let network = options.testnet ? "test" : "main";
 
         const explorer = new Explorer(network)
-
-        explorer.broadcast(tx).then((tx) => {
-            callback(null, tx)
+        explorer.broadcast(tx).then((latx) => {
+            callback(null, latx)
         }).catch((e) => { callback(e, null) })
-
+        /*explorer.broadcastBinary( Buffer.from(tx,"hex") ).then((latx) => {
+            callback(null, latx)
+        }).catch((e) => { callback(e, null) })*/
 
     })
 }
@@ -237,7 +233,7 @@ var _script = function(options) {
             options.data.forEach(function(item) {
                 // add push data
                 if (item.constructor.name === 'ArrayBuffer') {
-                    let buffer = _Buffer.Buffer.from(item)
+                    let buffer = _Buffer.from(item)
                     s.writeBuffer(buffer)
                 } else if (item.constructor.name === 'Buffer') {
                     s.writeBuffer(item)
@@ -261,11 +257,11 @@ var _script = function(options) {
     }
     return s;
 }
-var connect = function( network = "main") {
-    //var rpc = endpoint ? endpoint : defaults.rpc;
+var connect = function(network = "main") {
+   // var rpc = options.rpc? options.rpc : defaults.rpc;
 
     return new Explorer(network);
- 
+
 }
 module.exports = {
     build: build,
