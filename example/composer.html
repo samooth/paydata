@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 <style>
@@ -76,7 +77,7 @@ textarea {
 }
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://bsv.direct/lib/paydata.min.js"></script>
+    <script type="text/javascript" src="https://bsv.direct/lib/paydata.min.js?ta"></script>
 
 <script>
 const bsvjs = paydata.bsv
@@ -112,8 +113,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
   sendEl.onclick = function(e) {
     var t = laTx;
     console.log("t",t)
-    var isvalid = new paydata.bsv.TxVerifier({ tx: t });
 
+    var isvalid = new paydata.bsv.TxVerifier({ tx: t });
+  console.log(isvalid)
+  if (t.txIns.length>0)
    // console.log(isvalid.verify( ).getDebugString ())
  //   if (isvalid.verify( )) {
       send(t.toHex())
@@ -140,7 +143,7 @@ var send = function(transaction) {
   console.log("Broadcasting... ",transaction)
   paydata.connect(network).broadcast(transaction)
   .then(function(response) {
-    console.log(response);
+    console.log(network, response);
     let prefix = network=="test" ? "test":"";
     document.querySelector("#sent").innerHTML = `<a href='https://${prefix}.whatsonchain.com/tx/${response.txid}' target='_blank'>Success! Click to view Transaction</a>`;
     document.querySelector("#sent").className = "";
@@ -154,7 +157,9 @@ var send = function(transaction) {
 <div class='header'>Transaction Description</div>
 <textarea id='dsl'>
 {
+  "testnet":true,
   "data": ["paydata", "test 1... 2... 3..."],
+  "nData":[ [ "hello world1", "que te parece1"], ["hello world2", "que te parece2"] ],
   "pay": {
     "key": ""
   }

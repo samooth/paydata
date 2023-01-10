@@ -31367,16 +31367,7 @@ var build = function(options, callback) {
         if (options.data) {
             script = _script(options)
         }
-        if (options.nData) {
-            options.nData.forEach((data) => {
-                try {
-                    builder.outputToScript(new bitcoin.Bn(0), _script({ data: data }));
-                } catch (e) {
-                    console.log(e)
-                }
 
-            })
-        }
     }
 
     // Instantiate pay
@@ -31516,6 +31507,16 @@ var build = function(options, callback) {
 
         if (script) {
             tx.addTxOut(new bitcoin.Bn(0), script);
+        }
+        if (options.nData) {
+            options.nData.forEach((data) => {
+                try {
+                    builder.outputToScript(new bitcoin.Bn(0), _script({ data: data }));
+                } catch (e) {
+                    console.log(e)
+                }
+
+            })
         }
         if (options.pay && Array.isArray(options.pay.to)) {
             options.pay.to.forEach(function(receiver) {
