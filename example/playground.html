@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
       }
       codeEl.textContent = JSON.stringify(dsl, null, 2)
       paydata.build(dsl, function(err, tx) {
-        tx= bsvjs.Tx.fromBr(new bsvjs.Br(bsvjs.deps.Buffer.from(tx,"hex")))
+       // tx= bsvjs.Tx.fromBr(new bsvjs.Br(bsvjs.deps.Buffer.from(tx,"hex")))
 
         transaction = tx;
         txEl.textContent = JSON.stringify(tx.toJSON(), null, 2);

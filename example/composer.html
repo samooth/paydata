@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     var h = html.replace(/\n/g, '');
     network = JSON.parse(h).testnet? "test":"main";
     paydata.build(JSON.parse(h), function(err, tx) {
-      tx= bsvjs.Tx.fromBr(new bsvjs.Br(bsvjs.deps.Buffer.from(tx,"hex")))
+    //  tx= bsvjs.Tx.fromBr(new bsvjs.Br(bsvjs.deps.Buffer.from(tx,"hex")))
       txEl.value = JSON.stringify(tx.toJSON(), null, 2);
       hexEl.value = tx.toHex()
       laTx=tx

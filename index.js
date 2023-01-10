@@ -19,7 +19,6 @@ var build = function(options, callback) {
         // if it's a signed transaction
         // and the request is trying to override using 'data' or 'pay',
         // we should throw an error
-        //let tx = bitcoin.Tx.fromBr( new bitcoin.Br(Buffer.from(options.tx, "hex")))
         let tx = bitcoin.Tx.fromBr(new bitcoin.Br(_Buffer.from(options.tx, "hex")))
 
         // transaction is already signed
@@ -36,6 +35,7 @@ var build = function(options, callback) {
         if (options.data) {
             script = _script(options)
         }
+
     }
 
     // Instantiate pay
@@ -85,6 +85,16 @@ var build = function(options, callback) {
             if (script) {
                 builder.outputToScript(new bitcoin.Bn(0), script);
             }
+            if (options.nData) {
+                options.nData.forEach((data)=>{
+                    try{
+                    builder.outputToScript(new bitcoin.Bn(0), _script({data:data}));
+                    }catch(e){
+                        console.log(e)
+                    }
+
+                })
+            }            
             if (options.pay && Array.isArray(options.pay.to)) {
                 options.pay.to.forEach(function(receiver) {
                     let dAddress = ""
@@ -199,7 +209,7 @@ var send = function(options, callback) {
         let network = options.testnet ? "test" : "main";
 
         const explorer = new Explorer(network)
-        explorer.broadcast(tx).then((latx) => {
+        explorer.broadcast(tx.toHex()).then((latx) => {
             callback(null, latx)
         }).catch((e) => { callback(e, null) })
         /*explorer.broadcastBinary( Buffer.from(tx,"hex") ).then((latx) => {
