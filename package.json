@@ -1,6 +1,6 @@
 {
   "name": "paydata",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "post data over bitcoin sv",
   "main": "index.js",
   "scripts": {

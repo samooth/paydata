@@ -44,7 +44,7 @@ Post to both Memo.cash and Blockpress with a single interface.
 Install both `paydata` and `bsv` (Paydata has a peer dependency on bsv2)
 
 ```
-npm install git+https://github.com/samooth/datapay
+npm install git+https://github.com/samooth/paydata
 ```
 
 and then require it
@@ -90,7 +90,7 @@ var config = {
   pay: {
     key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw",
     rpc: "https://api.whatsonchain.com",
-    fee: 400,
+    fee: 50,
     to: [{
       address: "1A2JN4JAUoKCQ5kA4pHhu4qCqma8jZSU81",
       value: 1000
@@ -102,7 +102,7 @@ var config = {
 Above config describes a transaction that:
 
 - Posts `"hello from Paydata"` to [memo.cash](https://memo.cash) network (See the protocol at [https://memo.cash/protocol](https://memo.cash/protocol)),
-- paying the fee of `400` satoshis,
+- paying the fee of `50` satoshis,
 - signed with a private key: `5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw`,
 - through a public JSON-RPC endpoint at [https://api.bitails.net](https://api.bitails.net)
 - while tipping the user `1A2JN4JAUoKCQ5kA4pHhu4qCqma8jZSU81` a value of `1000` satoshis.
@@ -183,10 +183,10 @@ const tx = {
 daydata.build(tx, function(err, tx) {  
   /**
   * res contains the generated transaction object, powered by bsv
-  * You can check it out at https://github.com/moneybutton/bsv/blob/master/lib/transaction/transaction.js
+  * You can check it out at https://bsv.direct/docs/bsv.js/tx.html
   * Some available methods you can call on the tx object are:
-  * 1. tx.toString() => Export as string
-  * 2. tx.toObject() => Inspect the transaction as JSON object
+  * 1. tx.toHex() => Export as string
+  * 2. tx.toJSON() => Inspect the transaction as JSON object
   **/
 });
 ```
@@ -220,8 +220,8 @@ paydata.build(tx, function(err, tx) {
   * res contains the generated transaction object, powered by bsv
   * You can check it out at https://github.com/moneybutton/bsv/blob/master/lib/transaction/transaction.js
   * Some available methods you can call on the tx object are:
-  * 1. tx.toString() => Export as string
-  * 2. tx.toObject() => Inspect the transaction as JSON object
+  * 1. tx.toHex() => Export as string
+  * 2. tx.toJSON() => Inspect the transaction as JSON object
   **/
 });
 ```
@@ -261,8 +261,8 @@ paydata.build(tx, function(err, tx) {
   * res contains the generated transaction object, powered by bsv
   * You can check it out at https://github.com/moneybutton/bsv/blob/master/lib/transaction/transaction.js
   * Some available methods you can call on the tx object are:
-  * 1. tx.toString() => Export as string
-  * 2. tx.toObject() => Inspect the transaction as JSON object
+  * 1. tx.toHex() => Export as string
+  * 2. tx.toJSON() => Inspect the transaction as JSON object
   **/
 });
 ```
@@ -327,7 +327,7 @@ paydata.build(tx, function(err, res) {
 
 The `fee` attribute is used to specify the transaction fee in **satoshis**.
 
-- default: `400`
+- default: `50`
 
 ```
 const tx = {
@@ -336,7 +336,7 @@ const tx = {
   pay: {
     key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw",
     rpc: "https://api.bitails.net",
-    fee: 400
+    fee: 50
   }
 }
 paydata.build(tx, function(err, res) {
@@ -351,7 +351,7 @@ paydata.build(tx, function(err, res) {
 
 The `feeb` attribute is used to specify the transaction fee per byte in **satoshis**.
 
-- default: `1.4`
+- default: `0.05`
 
 ```
 const tx = {
@@ -360,7 +360,7 @@ const tx = {
   pay: {
     key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw",
     rpc: "https://api.bitails.net",
-    feeb: 1.04
+    feeb: 0.05
   }
 }
 paydata.build(tx, function(err, res) {
@@ -520,7 +520,7 @@ const tx = {
   data: ["0x6d02", "hello world"]
 }
 paydata.build(tx, function(err, res) {
-  exportedTxHex = res;
+  exportedTxHex = res.toHex();
 })
 
 // Later import exportedTxHex and sign it with privatkey, and broadcast, all in one method:
@@ -546,7 +546,7 @@ const tx = {
   pay: { key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw" }
 }
 paydata.build(tx, function(err, res) {
-  exportedSignedTxHex = res;
+  exportedSignedTxHex = res.toHex();
 })
 
 // Later import exportedTxHex and broadcast, all in one method:
@@ -572,11 +572,11 @@ Paydata exposes additional endpoints so you can simply access these libraries wi
 
 ## 1. Paydata.bsv
 
-This endpoint exposes the [bsv](https://github.com/moneybutton/bsv) library object. Basically by referncing `bsv` you have access to the entire bsv library.
+This endpoint exposes the [bsv](https://bsv.direct/docs/bsv.js) library object. Basically by referncing `bsv` you have access to the entire bsv library.
 
 ```
-const privateKey = new Paydata.bsv.PrivateKey();
-const address = privateKey.toAddress();
+const privateKey = new paydata.bsv.PrivKey.fromRandom();
+const address = paydata.Address.fromPrivKey(privateKey);
 console.log(address.toString()) // 15WZwpw3BofscM2u43ji85BXucai5YGToL
 ```
 
@@ -589,10 +589,10 @@ Using this endpoint you can connect to a public JSON-RPC endpoint to let you mak
 ### Syntax
 
 ```
-paydata.connect([RPC ENDPOINT]).[METHOD]
+paydata.connect([network])
 ```
 
-If you leave the `RPC ENDPOINT` part out, it will automatically use the default https://api.bitails.net node
+If you leave the `network` part out, it will automatically use the default https://api.bitails.net node on mainnet
 
 ### Example 1: Connecting to default node and calling `getUnspentUtxos()` method:
 

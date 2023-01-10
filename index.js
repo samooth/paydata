@@ -5,7 +5,7 @@ const _Buffer = bitcoin.deps.Buffer
 const Explorer = require('../bitails/src/index.js');
 const defaults = {
     rpc: "api.bsv.direct/e2",
-    fee: 50,
+    fee: 12,
     feeb: 0.05
 }
 // The end goal of 'build' is to create a hex formated transaction object
@@ -159,7 +159,7 @@ var build = function(options, callback) {
 
     } else {
         // key doesn't exist => create an unsigned transaction
-        let fee = (options.pay && options.pay.fee) ? options.pay.fee : defaults.fee;
+        let feeb = (options.pay && options.pay.feeb) ? options.pay.feeb : defaults.feeb;
 
         let tx = new bitcoin.Tx()
         if (options.tx) {
@@ -168,7 +168,7 @@ var build = function(options, callback) {
         }
         let builder = new bitcoin.TxBuilder(tx);
 
-        builder.setFeePerKbNum(fee)
+        builder.setFeePerKbNum(feeb)
         builder.dust = 0
 
 
