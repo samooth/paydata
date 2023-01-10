@@ -35,7 +35,16 @@ var build = function(options, callback) {
         if (options.data) {
             script = _script(options)
         }
+        if (options.nData) {
+            options.nData.forEach((data) => {
+                try {
+                    builder.outputToScript(new bitcoin.Bn(0), _script({ data: data }));
+                } catch (e) {
+                    console.log(e)
+                }
 
+            })
+        }
     }
 
     // Instantiate pay
@@ -86,15 +95,15 @@ var build = function(options, callback) {
                 builder.outputToScript(new bitcoin.Bn(0), script);
             }
             if (options.nData) {
-                options.nData.forEach((data)=>{
-                    try{
-                    builder.outputToScript(new bitcoin.Bn(0), _script({data:data}));
-                    }catch(e){
+                options.nData.forEach((data) => {
+                    try {
+                        builder.outputToScript(new bitcoin.Bn(0), _script({ data: data }));
+                    } catch (e) {
                         console.log(e)
                     }
 
                 })
-            }            
+            }
             if (options.pay && Array.isArray(options.pay.to)) {
                 options.pay.to.forEach(function(receiver) {
                     let dAddress = ""
@@ -144,7 +153,7 @@ var build = function(options, callback) {
             // let myfee = opt_pay.fee || Math.ceil(builder.estimateSize() * (opt_pay.feeb || defaults.feeb));
 
             // Adding option to return tx on bsv format if specified
-            let returnThis = options.format === "hex" ?  builder.tx.toHex() : builder.tx;
+            let returnThis = options.format === "hex" ? builder.tx.toHex() : builder.tx;
             callback(null, returnThis);
         }
 
@@ -190,7 +199,7 @@ var build = function(options, callback) {
         }
         builder.buildOutputs()
         // Adding option to return tx on bsv format if specified
-        let returnThis = options.format === "hex" ? builder.tx.toHex(): builder.tx ;
+        let returnThis = options.format === "hex" ? builder.tx.toHex() : builder.tx;
         callback(null, returnThis);
 
     }
@@ -268,7 +277,7 @@ var _script = function(options) {
     return s;
 }
 var connect = function(network = "main") {
-   // var rpc = options.rpc? options.rpc : defaults.rpc;
+    // var rpc = options.rpc? options.rpc : defaults.rpc;
 
     return new Explorer(network);
 

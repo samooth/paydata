@@ -3,7 +3,7 @@ const assert = require('assert');
 const bitcoin = require('bsv')
 const paydata = require('../index');
 const Buffer = bitcoin.deps.Buffer
-
+const Tx = bitcoin.Tx
 // Private Key for Demo Purpose Only
 const privKey = process.env.privKey
 console.log( bitcoin.Address.fromPrivKey( bitcoin.PrivKey.fromString(privKey)).toString())
@@ -29,10 +29,11 @@ describe('paydata', function() {
     describe('safe as default', function() {
       it('safe as default', function(done) {
         const options = {
+           format:"bsv",
           data: [{op: 78}, "hello world"]
         }
         paydata.build(options, function(err, tx) {
-          let generated = tx
+          let generated =  tx
           let s = generated.txOuts[0].script.toAsmString()
           console.log(s)
 
@@ -43,6 +44,7 @@ describe('paydata', function() {
       it('set safe true', function(done) {
         const options = {
           safe: true,
+           format:"bsv",
           data: [{op: 78}, "hello world"]
         }
         paydata.build(options, function(err, tx) {
@@ -56,6 +58,7 @@ describe('paydata', function() {
       it('set safe false', function(done) {
         const options = {
           safe: false,
+          format:"bsv",
           data: [{op: 78}, "hello world"]
         }
         paydata.build(options, function(err, tx) {
@@ -70,10 +73,11 @@ describe('paydata', function() {
       it('opcode', function(done) {
         const options = {
           safe: false,
+          format:"bsv",
           data: [{op: 78}, "hello world"]
         }
         paydata.build(options, function(err, tx) {
-          let generated = tx
+          let generated =  tx
           let s = generated.txOuts[0].script.toAsmString()
           console.log(s)
           assert(s.startsWith("OP_RETURN OP_PUSHDATA4 68656c6c6f20776f726c64"))
@@ -86,7 +90,7 @@ describe('paydata', function() {
           data: ["0x6d02", "hello world", {op: 78}, "blah blah blah * 10^100"]
         }
         paydata.build(options, function(err, tx) {
-          let generated = tx
+          let generated =  Tx.fromHex(tx)
           let s = generated.txOuts[0].script.toString()
                     console.log(s)
 
@@ -118,7 +122,7 @@ describe('paydata', function() {
           data: "0x6a04366430320b68656c6c6f20776f726c64"
         }
         paydata.build(options, function(err, tx) {
-          let generated = tx;
+          let generated =  Tx.fromHex(tx);
 
           // no input (since no one has signed yet)
           assert.equal(generated.txIns.length, 0)
@@ -554,6 +558,7 @@ describe('paydata', function() {
               assert(tx2.txIns[0].script)
               // the script should be public key hash in
               let script = tx2.inputs[0].script
+              
               assert(script.isPublicKeyHashIn())
               // the imported transaction's input script address should match
               // the address corresponding to the originally imported private key
