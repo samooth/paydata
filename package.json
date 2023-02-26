@@ -4,7 +4,7 @@
   "description": "post data over bitcoin sv",
   "main": "index.js",
   "scripts": {
-    "test": "npx mocha --timeout=10000",
+    "test": "npx mocha",
     "generate-docs": "jsdoc --configure jsdoc.json --verbose -R README.md index.js",
     "build": "npx browserify index.js --standalone paydata > dist/paydata.js && uglifyjs dist/paydata.js > dist/paydata.min.js"
   },
