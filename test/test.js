@@ -8,7 +8,7 @@ const Tx = bitcoin.Tx
 const privKey = process.env.privKey
 const toAddress = bitcoin.Address.fromPrivKey(bitcoin.PrivKey.fromString(privKey)).toString()
 
-var utxoSize=2;
+var utxoSize;
 describe('paydata', function() {
 
     beforeEach(function(done) {
@@ -20,6 +20,7 @@ describe('paydata', function() {
             if (!utxos) {
                 console.log("Error: ", err)
             } else {
+                utxoSize=utxos.length
                 done()
             }
         })
@@ -250,14 +251,15 @@ describe('paydata', function() {
             it('both data and pay', function(done) {
                 const options = {
                     safe: false,
+                    format:"bsv",
+                    
                     data: ["0x6d02", "hello world"],
                     pay: {
                         key: privKey
                     }
                 }
-                paydata.build(options, function(err, tx) {
-                    let generated = tx;
-
+                paydata.build(options, function(err, generated) {
+                  
                     // input length 1 => from the user specified by the private key
                     assert.equal(generated.txIns.length, utxoSize)
                     // contains a 'changeScript'
@@ -269,7 +271,7 @@ describe('paydata', function() {
                     let s1 = generated.txOuts[0].script
 
                     // the first output is OP_RETURN
-                    assert(s1.chunks[0].opcodenum, bitcoin.OpCode.OP_RETURN)
+                    assert(s1.chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
 
                     // the second script is a pubkeyhashout (change address)
                     let s2 = new bitcoin.Script(generated.txOuts[1].script)
@@ -352,7 +354,7 @@ describe('paydata', function() {
 
                     // 1. OP_RETURN
                     let s1 = tx.txOuts[0].script
-                    assert(s1.chunks[0].opcodenum, bitcoin.OpCode.OP_RETURN)
+                    assert(s1.chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
                     // 2. Manual transaction output
                     // the second script is a pubkeyhashout (change address)
                     let s2 = tx.outputs[1].script
@@ -394,7 +396,7 @@ describe('paydata', function() {
 
                     // 1. OP_RETURN
                     let s1 = tx.txOuts[0].script
-                    assert(s1.chunks[0].opcodenum, bitcoin.OpCode.OP_RETURN)
+                    assert(s1.chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
                     // 2. Manual transaction output
                     // the second script is a pubkeyhashout (change address)
                     let s2 = tx.txOuts[1].script
@@ -441,7 +443,7 @@ describe('paydata', function() {
                             tx: exportedTx
                         }, function(err, imported_tx) {
                             // the imported transaction should equal the original transaction
-                            assert.equal(imported_tx.toString(), original_tx.toString())
+                            assert.equal(imported_tx.toString(), exportedTx)
                             done()
                         })
                     })
@@ -500,7 +502,7 @@ describe('paydata', function() {
                             assert.equal(tx1.outputs.length, 1)
                             // and it should be an OP_RETURN
                             let script1 = new bitcoin.Script(tx1.txOuts[0].script)
-                            assert(script1.chunks[0].opcodenum, bitcoin.OpCode.OP_RETURN)
+                            assert(script1.chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
 
                             // tx2's output should have two items
                             assert.equal(tx2.outputs.length, 2)
@@ -509,7 +511,7 @@ describe('paydata', function() {
                                 new bitcoin.Script(tx2.outputs[1].script)
                             ]
                             // the first should be OP_RETURN
-                            assert(script2[0].chunks[0].opcodenum, bitcoin.OpCode.OP_RETURN)
+                            assert(script2[0].chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
                             // the second script is a pubkeyhashout (change address)
                             assert(script2[1].isPublicKeyHashOut())
                             done()
@@ -549,7 +551,7 @@ describe('paydata', function() {
                                 new bitcoin.Script(tx2.outputs[1].script)
                             ]
                             // the first should be OP_RETURN
-                            assert(script2[0].chunks[0].opcodenum, bitcoin.OpCode.OP_RETURN)
+                            assert(script2[0].chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
                             // the second script is a pubkeyhashout (change address)
                             assert(script2[1].isPublicKeyHashOut())
 

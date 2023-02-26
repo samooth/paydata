@@ -1,4 +1,4 @@
-const mingo = require("mingo")
+const mingo = require("mingo");
 const bitcoin = require('bsv');
 const _Buffer = bitcoin.deps.Buffer
 //const explorer = require('bitcore-explorers');
