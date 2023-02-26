@@ -64,6 +64,8 @@ var build = function(options, callback) {
             console.log(res)
             if (!res.length) {
                 console.log("Empty wallet, no utxos")
+                callback(new Error("Empty wallet, no utxos"))
+
             }
             if (options.pay.filter && options.pay.filter.q && options.pay.filter.q.find) {
                 let f = new mingo.Query(options.pay.filter.q.find)
@@ -94,7 +96,7 @@ var build = function(options, callback) {
                     try {
                         builder.outputToScript(new bitcoin.Bn(0), _script({ data: data }));
                     } catch (e) {
-                        console.log(e)
+                        callback(new Error(e.message))
                     }
 
                 })
