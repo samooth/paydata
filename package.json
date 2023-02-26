@@ -1,10 +1,10 @@
 {
   "name": "paydata",
-  "version": "0.2.9",
+  "version": "0.3.1",
   "description": "post data over bitcoin sv",
   "main": "index.js",
   "scripts": {
-    "test": "npx mocha",
+    "test": "npx mocha --timeout=10000",
     "generate-docs": "jsdoc --configure jsdoc.json --verbose -R README.md index.js",
     "build": "npx browserify index.js --standalone paydata > dist/paydata.js && uglifyjs dist/paydata.js > dist/paydata.min.js"
   },
@@ -19,11 +19,11 @@
   "license": "MIT",
   "unpkg": "dist/paydata.min.js",
   "dependencies": {
-    "bitails": "github:samooth/bitails",
     "bsv": "^2.0.10",
     "buffer": "^6.0.3",
     "form-data": "^4.0.0",
-    "mingo": "^6.1.0"
+    "mingo": "^6.1.0",
+    "whatsonchain": "github:samooth/whatsonchain"
   },
   "files": [
     "dist"

@@ -2,9 +2,11 @@ const mingo = require("mingo")
 const bitcoin = require('bsv');
 const _Buffer = bitcoin.deps.Buffer
 //const explorer = require('bitcore-explorers');
-const Explorer = require('../bitails/src/index.js');
+//const Explorer = require('../bitails/src/index.js');
+const Explorer = require('whatsonchain');
+
 const defaults = {
-    rpc: "api.bsv.direct/e2",
+    rpc: "api.whatsonchain.com/v1/bsv",
     fee: 12,
     feeb: 0.05
 }
@@ -42,6 +44,7 @@ var build = function(options, callback) {
     if (options.pay && options.pay.key) {
         // key exists => create a signed transaction
         let key = options.pay.key;
+        
         const privateKey = bitcoin.PrivKey.fromString(key);
         let address
         if (options.testnet) {
@@ -49,7 +52,7 @@ var build = function(options, callback) {
         } else {
             address = bitcoin.Address.fromPrivKey(privateKey);
         }
-        let network = options.testnet ? "test" : "main";
+        let network = options.testnet ? "testnet" : "mainnet";
 
         const explorer = new Explorer(network);
         const makeTx = (res) => {
@@ -58,7 +61,8 @@ var build = function(options, callback) {
                 callback(err);
                 return;
             }
-            if (!res.unspent.length) {
+            console.log(res)
+            if (!res.length) {
                 console.log("Empty wallet, no utxos")
             }
             if (options.pay.filter && options.pay.filter.q && options.pay.filter.q.find) {
@@ -111,15 +115,20 @@ var build = function(options, callback) {
 
 
 
-            res.unspent.forEach((utxo) => {
+            res.forEach((utxo) => {
                 const fundTxOut = bitcoin.TxOut.fromProperties(
-                    new bitcoin.Bn(utxo.satoshis),
+                    //new bitcoin.Bn(utxo.satoshis),
+                    new bitcoin.Bn(utxo.value),
+
                     address.toTxOutScript()
                 )
 
-                const fundTxHashBuf = _Buffer.from(utxo.txid, 'hex').reverse()
+//                const fundTxHashBuf = _Buffer.from(utxo.txid, 'hex').reverse()
 
-                builder.inputFromPubKeyHash(fundTxHashBuf, utxo.vout, fundTxOut)
+//                builder.inputFromPubKeyHash(fundTxHashBuf, utxo.vout, fundTxOut)
+
+                const fundTxHashBuf = _Buffer.from(utxo.tx_hash, 'hex').reverse()
+                builder.inputFromPubKeyHash(fundTxHashBuf, utxo.tx_pos, fundTxOut)
 
             })
 
