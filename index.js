@@ -45,6 +45,7 @@ var build = function(options, callback) {
         // key exists => create a signed transaction
         let key = options.pay.key;
 
+
         const privateKey = bitcoin.PrivKey.fromString(key);
         let address
         if (options.testnet) {
@@ -177,51 +178,57 @@ var build = function(options, callback) {
 
 
     } else {
-        // key doesn't exist => create an unsigned transaction
-        let feeb = (options.pay && options.pay.feeb) ? options.pay.feeb : defaults.feeb;
+        try {
+            // key doesn't exist => create an unsigned transaction
+            let feeb = (options.pay && options.pay.feeb) ? options.pay.feeb : defaults.feeb;
 
-        let tx = new bitcoin.Tx()
-        if (options.tx) {
-            // options.tx can be hexstring or buffer
-            tx = typeof options.tx === "string" ? bsv.Tx.fromHex(options.tx) : bsv.Tx.fromBr(new bsv.Br(options.tx))
+            let tx = new bitcoin.Tx()
+            if (options.tx) {
+                // options.tx can be hexstring or buffer
+                tx = typeof options.tx === "string" ? bsv.Tx.fromHex(options.tx) : bsv.Tx.fromBr(new bsv.Br(options.tx))
+            }
+            let builder = new bitcoin.TxBuilder(tx);
+
+            builder.setFeePerKbNum(feeb)
+            builder.dust = 0
+
+
+
+            if (script) {
+                tx.addTxOut(new bitcoin.Bn(0), script);
+            }
+            if (options.nData) {
+                options.nData.forEach((data) => {
+                    try {
+                        builder.outputToScript(new bitcoin.Bn(0), _script({ data: data }));
+                    } catch (e) {
+                        callback(new Error(e.message))
+
+                    }
+
+                })
+            }
+            if (options.pay && Array.isArray(options.pay.to)) {
+                options.pay.to.forEach(function(receiver) {
+
+                    let dAddress = ""
+                    if (options.testnet) {
+                        dAddress = bitcoin.Address.Testnet.fromString(receiver.address)
+                    } else {
+                        dAddress = bitcoin.Address.fromString(receiver.address)
+                    }
+                    tx.addTxOut(new bitcoin.Bn(receiver.value), dAddress)
+                })
+            }
+            builder.buildOutputs()
+            // Adding option to return tx on bsv format if specified
+            let returnThis = options.format === "hex" ? builder.tx.toHex() : builder.tx;
+            callback(null, returnThis);
+
+        } catch (e) {
+            callback(new Error(e.message))
+
         }
-        let builder = new bitcoin.TxBuilder(tx);
-
-        builder.setFeePerKbNum(feeb)
-        builder.dust = 0
-
-
-
-        if (script) {
-            tx.addTxOut(new bitcoin.Bn(0), script);
-        }
-        if (options.nData) {
-            options.nData.forEach((data) => {
-                try {
-                    builder.outputToScript(new bitcoin.Bn(0), _script({ data: data }));
-                } catch (e) {
-                    console.log(e)
-                }
-
-            })
-        }
-        if (options.pay && Array.isArray(options.pay.to)) {
-            options.pay.to.forEach(function(receiver) {
-
-                let dAddress = ""
-                if (options.testnet) {
-                    dAddress = bitcoin.Address.Testnet.fromString(receiver.address)
-                } else {
-                    dAddress = bitcoin.Address.fromString(receiver.address)
-                }
-                tx.addTxOut(new bitcoin.Bn(receiver.value), dAddress)
-            })
-        }
-        builder.buildOutputs()
-        // Adding option to return tx on bsv format if specified
-        let returnThis = options.format === "hex" ? builder.tx.toHex() : builder.tx;
-        callback(null, returnThis);
-
     }
 }
 var send = function(options, callback) {
