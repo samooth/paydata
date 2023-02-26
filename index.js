@@ -64,7 +64,6 @@ var build = function(options, callback) {
             }
 
             if (!res.length) {
-                console.log("Empty wallet, no utxos")
                 callback(new Error("Empty wallet, no utxos"))
 
             }
