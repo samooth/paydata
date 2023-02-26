@@ -6,9 +6,9 @@ const Buffer = bitcoin.deps.Buffer
 const Tx = bitcoin.Tx
 // Private Key for Demo Purpose Only
 const privKey = process.env.privKey
-console.log(bitcoin.Address.fromPrivKey(bitcoin.PrivKey.fromString(privKey)).toString())
+const toAddress = bitcoin.Address.fromPrivKey(bitcoin.PrivKey.fromString(privKey)).toString()
 
-var utxoSize;
+var utxoSize=2;
 describe('paydata', function() {
 
     beforeEach(function(done) {
@@ -426,13 +426,12 @@ describe('paydata', function() {
                     // 1. build
                     const options = {
                         safe: false,
-                        format:'bsv',                        
+                        format:'hex',                        
                         data: ["0x6d02", "hello world"]
                     }
-                    paydata.build(options, function(err, original_tx) {
+                    paydata.build(options, function(err, exportedTx) {
                         // 2. export
 
-                        let exportedTx = original_tx.toString()
                         // exported transaction is string
                         assert.equal(typeof exportedTx, "string")
                         // 3. re-import
@@ -568,13 +567,12 @@ describe('paydata', function() {
                 it('tx only', function(done) {
                     const options1 = {
                         safe: false,
-                        format:'bsv',                        
+                        format:'hex',                        
                         data: ["0x6d02", "hello world"],
                         pay: { key: privKey }
                     }
                     // 1. build initial transaction
-                    paydata.build(options1, function(err, tx1) {
-                        let exported_tx1 = tx1.toBuffer().toString("hex");
+                    paydata.build(options1, function(err, exported_tx1) {
                         // 2. import transaction
                         paydata.build({ tx: exported_tx1 }, function(err, tx2) {
                             // the imported transaction should have as many as the utxoSize
@@ -603,8 +601,7 @@ describe('paydata', function() {
                         pay: { key: privKey }
                     }
                     // 1. build initial transaction
-                    paydata.build(options1, function(err, tx1) {
-                        let exported_tx1 = tx1.toBuffer().toString("hex");
+                    paydata.build(options1, function(err, exported_tx1) {
                         // 2. import transaction
                         paydata.build({
                             tx: exported_tx1,

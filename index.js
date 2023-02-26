@@ -80,12 +80,10 @@ var build = function(options, callback) {
                 //  console.log(options)
                 if (options.tx) {
                     tx = bitcoin.Tx.fromBr(new bitcoin.Br(_Buffer.from(options.tx, "hex")))
-
                 } else {
                     tx = new bitcoin.Tx()
                 }
                 builder.tx = tx
-
                 builder.setFeePerKbNum(50)
                 builder.dust = 0
 
@@ -116,20 +114,12 @@ var build = function(options, callback) {
                 }
                 builder.buildOutputs();
 
-
-
                 res.forEach((utxo) => {
                     const fundTxOut = bitcoin.TxOut.fromProperties(
                         //new bitcoin.Bn(utxo.satoshis),
                         new bitcoin.Bn(utxo.value),
-
                         address.toTxOutScript()
                     )
-
-                    //                const fundTxHashBuf = _Buffer.from(utxo.txid, 'hex').reverse()
-
-                    //                builder.inputFromPubKeyHash(fundTxHashBuf, utxo.vout, fundTxOut)
-
                     const fundTxHashBuf = _Buffer.from(utxo.tx_hash, 'hex').reverse()
                     builder.inputFromPubKeyHash(fundTxHashBuf, utxo.tx_pos, fundTxOut)
 
@@ -137,21 +127,21 @@ var build = function(options, callback) {
 
                 builder.setChangeAddress(address);
 
+                // TODO: Force specific sats for tx fee
 
                 let laTx = builder.build({ useAllInputs: true })
                 //Filter the tx for some requirements
                 /*
-      for(var i=0;i<tx.outputs.length;i++){
-        if(tx.outputs[i]._satoshis>0 && tx.outputs[i]._satoshis<546){
-          tx.outputs.splice(i,1);
-          i--;
-        }
-      }
-*/
+                      for(var i=0;i<tx.outputs.length;i++){
+                        if(tx.outputs[i]._satoshis>0 && tx.outputs[i]._satoshis<546){
+                          tx.outputs.splice(i,1);
+                          i--;
+                        }
+                      }
+                */
                 const keyPairs = [bitcoin.KeyPair.fromPrivKey(bitcoin.PrivKey.fromString(options.pay.key))]
                 builder.signWithKeyPairs(keyPairs)
                 // build tx
-
                 let opt_pay = options.pay || {};
                 // let myfee = opt_pay.fee || Math.ceil(builder.estimateSize() * (opt_pay.feeb || defaults.feeb));
 
@@ -184,7 +174,7 @@ var build = function(options, callback) {
             let tx = new bitcoin.Tx()
             if (options.tx) {
                 // options.tx can be hexstring or buffer
-                tx = typeof options.tx === "string" ? bsv.Tx.fromHex(options.tx) : bsv.Tx.fromBr(new bsv.Br(options.tx))
+                tx = typeof options.tx === "string" ? bitcoin.Tx.fromHex(options.tx) : bitcoin.Tx.fromBr(new bitcoin.Br(options.tx))
             }
             let builder = new bitcoin.TxBuilder(tx);
 
