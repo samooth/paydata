@@ -158,20 +158,22 @@ var build = function(options, callback) {
                 // Adding option to return tx on bsv format if specified
                 let returnThis = options.format === "hex" ? builder.tx.toHex() : builder.tx;
                 callback(null, returnThis);
+
+            } catch (e) {
+                callback(new Error(e.message))
+
             }
-
-            let utxoSet = Array()
-            let offset = 0
-
-            explorer.utxos(address.toString(), 0, 100).then((res) => {
-                makeTx(res)
-
-            })
-
-        } catch (e) {
-            callback(new Error(e.message))
-
         }
+
+        let utxoSet = Array()
+        let offset = 0
+
+        explorer.utxos(address.toString(), 0, 100).then((res) => {
+            makeTx(res)
+
+        })
+
+
 
 
     } else {
