@@ -564,14 +564,14 @@ describe('paydata', function() {
                 it('tx only', function(done) {
                     const options1 = {
                         safe: false,
-                        format:'hex',                        
+                        format:'bsv',
                         data: ["0x6d02", "hello world"],
                         pay: { key: privKey }
                     }
                     // 1. build initial transaction
                     paydata.build(options1, function(err, tx1) {
                         // 2. import transaction
-                        paydata.build({ tx: tx1 }, function(err, tx2) {
+                        paydata.build({ tx: tx1.toHex() }, function(err, tx2) {
 
                             // the imported transaction should have as many as the utxoSize
                             assert.equal(tx2.txIns.length, utxoSize)
