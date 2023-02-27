@@ -9,10 +9,6 @@ const privKey = process.env.privKey
 const toAddress = bitcoin.Address.fromPrivKey(bitcoin.PrivKey.fromString(privKey)).toString()
 
 var utxoSize;
-describe('paydata', function() {
-
-    beforeEach(function(done) {
-
         const address = bitcoin.Address.fromPrivKey(bitcoin.PrivKey.fromString(privKey)).toString()
         const explorer = paydata.connect()
 
@@ -24,6 +20,12 @@ describe('paydata', function() {
                 done()
             }
         })
+
+describe('paydata', function() {
+
+    beforeEach(function(done) {
+
+        done()
     })
 
     describe('build', function() {
@@ -36,7 +38,6 @@ describe('paydata', function() {
                 paydata.build(options, function(err, tx) {
                     let generated = tx
                     let s = generated.txOuts[0].script.toAsmString()
-                    console.log(s)
 
                     assert(s.startsWith("0 OP_RETURN OP_PUSHDATA4 68656c6c6f20776f726c64"))
                     done()
@@ -51,7 +52,6 @@ describe('paydata', function() {
                 paydata.build(options, function(err, tx) {
                     let generated = tx
                     let s = generated.txOuts[0].script.toAsmString()
-                    console.log(s)
                     assert(s.startsWith("0 OP_RETURN OP_PUSHDATA4 68656c6c6f20776f726c64"))
                     done()
                 });
@@ -80,7 +80,6 @@ describe('paydata', function() {
                 paydata.build(options, function(err, tx) {
                     let generated = tx
                     let s = generated.txOuts[0].script.toAsmString()
-                    console.debug(s)
                     assert(s.startsWith("OP_RETURN OP_PUSHDATA4 68656c6c6f20776f726c64"))
                     done()
                 });
@@ -93,7 +92,6 @@ describe('paydata', function() {
                 }
                 paydata.build(options, function(err, generated) {
                     let s = generated.txOuts[0].script.toString()
-                    console.log(s)
 
                     assert(s.startsWith("OP_RETURN 2 0x6d02 11 0x68656c6c6f20776f726c64 OP_PUSHDATA4 23 0x626c616820626c616820626c6168202a2031305e313030"))
                     done()
@@ -195,7 +193,6 @@ describe('paydata', function() {
                     assert.equal(generated.txOuts.length, 1)
                     // script is a pubkeyhashout
                     let s = generated.txOuts[0].script
-                    console.debug(s)
                   // assert(s.isPublicKeyHashOut())
 
                     // script sends the money to the same address as the sender
@@ -252,14 +249,12 @@ describe('paydata', function() {
                 const options = {
                     safe: false,
                     format:"bsv",
-                    
                     data: ["0x6d02", "hello world"],
                     pay: {
                         key: privKey
                     }
                 }
                 paydata.build(options, function(err, generated) {
-                  
                     // input length 1 => from the user specified by the private key
                     assert.equal(generated.txIns.length, utxoSize)
                     // contains a 'changeScript'
@@ -270,17 +265,18 @@ describe('paydata', function() {
 
                     let s1 = generated.txOuts[0].script
 
+
                     // the first output is OP_RETURN
                     assert(s1.chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
 
                     // the second script is a pubkeyhashout (change address)
-                    let s2 = new bitcoin.Script(generated.txOuts[1].script)
-                    assert(s2.isPublicKeyHashOut())
-
+                    let s2 = generated.txOuts[1].script
+                    assert(bitcoin.Address.fromTxOutScript(s2).toString())
+ 
                     // script sends the money to the same address as the sender
                     // specified by the private key
                     const address = bitcoin.Address.fromPrivKey(bitcoin.PrivKey.fromString(privKey))
-                    assert.equal(address.toString(), s2.toString())
+                    assert.equal(address.toString(), bitcoin.Address.fromTxOutScript(s2).toString()) 
 
                     done()
                 })
@@ -344,7 +340,7 @@ describe('paydata', function() {
                         key: privKey,
                         to: [{
                             address: receiver,
-                            value: 1000
+                            value: 10
                         }]
                     }
                 }
@@ -357,17 +353,17 @@ describe('paydata', function() {
                     assert(s1.chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
                     // 2. Manual transaction output
                     // the second script is a pubkeyhashout (change address)
-                    let s2 = tx.outputs[1].script
-                    assert(s2.isPublicKeyHashOut())
+                    let s2 = tx.txOuts[1].script
+                    assert(bitcoin.Address.fromTxOutScript(s2))
                     // the value sent is 1000
-                    console.debug(tx.outputs[1])
-                    assert.equal(tx.outputs[1].valueBn.toNumber(), 1000)
+
+                    assert.equal(tx.txOuts[1].valueBn.toNumber(), 10)
                     // the receiver address is the address specified in pay.to
                     assert.equal(bitcoin.Address.fromTxOutScript(s2).toString(), receiver)
 
                     // 3. Change address transaction output
-                    let s3 = new bitcoin.Script(tx.outputs[2].script)
-                    assert(s3.isPublicKeyHashOut())
+                    let s3 = tx.txOuts[2].script
+                    assert(bitcoin.Address.fromTxOutScript(s3))
                     done()
                 })
             })
@@ -383,10 +379,10 @@ describe('paydata', function() {
                         key: privKey,
                         to: [{
                             address: receiver,
-                            value: 1000
+                            value: 10
                         }, {
                             address: receiver,
-                            value: 2000
+                           value: 20
                         }]
                     }
                 }
@@ -400,24 +396,24 @@ describe('paydata', function() {
                     // 2. Manual transaction output
                     // the second script is a pubkeyhashout (change address)
                     let s2 = tx.txOuts[1].script
-                    assert(s2.isPublicKeyHashOut())
+                    assert(bitcoin.Address.fromTxOutScript(s2))
                     // the value sent is 1000
-                    assert.equal(tx.txOuts[1].valueBn.toNumber(), 1000)
+                    assert.equal(tx.txOuts[1].valueBn.toNumber(), 10)
                     // the receiver address is the address specified in pay.to
                     assert.equal(bitcoin.Address.fromTxOutScript(s2).toString(), receiver)
 
                     // 3. Manual transaction output
                     // the third script is a pubkeyhashout (change address)
                     let s3 = tx.txOuts[2].script
-                    assert(s3.isPublicKeyHashOut())
+                    assert(bitcoin.Address.fromTxOutScript(s3))
                     // the value sent is 1000
-                    assert.equal(tx.txOuts[2].valueBn.toNumber(), 2000)
+                    assert.equal(tx.txOuts[2].valueBn.toNumber(), 20)
                     // the receiver address is the address specified in pay.to
                     assert.equal(bitcoin.Address.fromTxOutScript(s3).toString(), receiver)
 
                     // 3. Change address transaction output
-                    let s4 = tx.outputs[3].script
-                    assert(s4.isPublicKeyHashOut())
+                    let s4 = tx.txOuts[3].script
+                    assert(bitcoin.Address.fromTxOutScript(s4))
                     done()
                 })
             })
@@ -452,21 +448,20 @@ describe('paydata', function() {
                     // if there's a 'tx' attribute, it should ignore 'data' to avoid confusion
                     const options1 = {
                         safe: false,
-                        format:'bsv',
+                        format:'hex',
                         data: ["0x6d02", "hello world"]
                     }
                     // 1. build initial transaction
                     paydata.build(options1, function(err, tx1) {
-                        let exported_tx1 = tx1.toString();
                         // 2. build a new transaction using the exported transaction + new data
                         let options2 = {
                             safe: false,
-                            format:'bsv',
-                            tx: exported_tx1,
+                            format:'hex',
+                            tx: tx1,
                             data: ["0x6d02", "bye world"]
                         }
                         paydata.build(options2, function(err, tx2) {
-                            assert.equal(tx1.toString(), tx2.toString())
+                            assert.equal(tx1, tx2)
                             done()
                         })
                     })
@@ -481,12 +476,10 @@ describe('paydata', function() {
                     }
                     // 1. build initial transaction
                     paydata.build(options1, function(err, tx1) {
-                        let exported_tx1 = tx1.toString();
                         // 2. build a new transaction using the exported transaction + new data
                         let options2 = {
                             safe: false,
-                            format:'bsv',
-                            tx: exported_tx1,
+                            tx: tx1.toHex(),
                             pay: {
                                 key: privKey
                             }
@@ -494,26 +487,28 @@ describe('paydata', function() {
                         paydata.build(options2, function(err, tx2) {
 
                             // tx1's input should be empty
-                            assert.equal(tx1.inputs.length, 0)
+                            assert.equal(tx1.txIns.length, 0)
                             // tx2's input should now have as many as the utxoSize
-                            assert.equal(tx2.inputs.length, utxoSize)
+                            assert.equal(tx2.txIns.length, utxoSize)
 
                             // tx1's output should have one item
-                            assert.equal(tx1.outputs.length, 1)
+                            assert.equal(tx1.txOuts.length, 1)
                             // and it should be an OP_RETURN
-                            let script1 = new bitcoin.Script(tx1.txOuts[0].script)
+
+                            let script1 = tx1.txOuts[0].script
+
                             assert(script1.chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
 
                             // tx2's output should have two items
-                            assert.equal(tx2.outputs.length, 2)
+                            assert.equal(tx2.txOuts.length, 2)
                             let script2 = [
-                                new bitcoin.Script(tx2.txOuts[0].script),
-                                new bitcoin.Script(tx2.outputs[1].script)
+                                tx2.txOuts[0].script,
+                                tx2.txOuts[1].script
                             ]
                             // the first should be OP_RETURN
                             assert(script2[0].chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
                             // the second script is a pubkeyhashout (change address)
-                            assert(script2[1].isPublicKeyHashOut())
+                            assert( bitcoin.Address.fromTxOutScript(script2[1]) )
                             done()
                         })
                     })
@@ -530,10 +525,10 @@ describe('paydata', function() {
                     }
                     // 1. build initial transaction
                     paydata.build(options1, function(err, tx1) {
-                        let exported_tx1 = tx1.toString();
                         // 2. build a new transaction using the exported transaction + new data
                         let options2 = {
-                            tx: exported_tx1,
+                            tx: tx1.toHex(),
+                            format:'bsv',
                             data: ["0x6d02", "bye world"], // trying to sneak in 'data'
                             pay: {
                                 key: privKey
@@ -542,23 +537,23 @@ describe('paydata', function() {
                         paydata.build(options2, function(err, tx2) {
 
                             // tx2's input should now have as many as the utxoSize
-                            assert.equal(tx2.inputs.length, utxoSize)
+                            assert.equal(tx2.txIns.length, utxoSize)
 
                             // tx2's output should have two items
-                            assert.equal(tx2.outputs.length, 2)
+                            assert.equal(tx2.txOuts.length, 2)
                             let script2 = [
-                                new bitcoin.Script(tx2.txOuts[0].script),
-                                new bitcoin.Script(tx2.outputs[1].script)
+                                tx2.txOuts[0].script,
+                                tx2.txOuts[1].script
                             ]
                             // the first should be OP_RETURN
                             assert(script2[0].chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
                             // the second script is a pubkeyhashout (change address)
-                            assert(script2[1].isPublicKeyHashOut())
+                            assert(bitcoin.Address.fromTxOutScript(script2[1]))
 
                             // the script for the original OP_RETURN
                             // should match the new OP_RETURN script
                             // because the 'data' attribute was ignored
-                            let script1 = new bitcoin.Script(tx1.txOuts[0].script)
+                            let script1 = tx1.txOuts[0].script
                             assert.equal(script1.toString(), script2[0].toString())
                             done()
                         })
@@ -574,17 +569,18 @@ describe('paydata', function() {
                         pay: { key: privKey }
                     }
                     // 1. build initial transaction
-                    paydata.build(options1, function(err, exported_tx1) {
+                    paydata.build(options1, function(err, tx1) {
                         // 2. import transaction
-                        paydata.build({ tx: exported_tx1 }, function(err, tx2) {
+                        paydata.build({ tx: tx1 }, function(err, tx2) {
+
                             // the imported transaction should have as many as the utxoSize
                             assert.equal(tx2.txIns.length, utxoSize)
                             // the input should have 'script' property
                             assert(tx2.txIns[0].script)
                             // the script should be public key hash in
-                            let script = tx2.inputs[0].script
+                            let script = tx2.txIns[0].script
 
-                            assert(script.isPublicKeyHashIn())
+                            assert(Address.fromTxOutScript(script) )
                             // the imported transaction's input script address should match
                             // the address corresponding to the originally imported private key
                             const address = bitcoin.Address.fromPrivKey(bitcoin.PrivKey(privKey))
@@ -599,14 +595,15 @@ describe('paydata', function() {
                     // Better yet, this shouldn't be used
                     const options1 = {
                         safe: false,
+                        format:'hex',
                         data: ["0x6d02", "hello world"],
                         pay: { key: privKey }
                     }
                     // 1. build initial transaction
-                    paydata.build(options1, function(err, exported_tx1) {
+                    paydata.build(options1, function(err, tx1) {
                         // 2. import transaction
                         paydata.build({
-                            tx: exported_tx1,
+                            tx: tx1,
                             data: ["0x6d02", "bye world"]
                         }, function(err, tx2) {
                             assert(err.toString(), "the transaction is already signed and cannot be modified")
@@ -615,23 +612,23 @@ describe('paydata', function() {
                         })
                     })
                 })
-                it('tx+ pay', function(done) {
+                it('tx + pay', function(done) {
                     // the transaction has already been signed
                     // the pay attribute should be ignored
                     // and throw and error
                     const options1 = {
                         safe: false,
+                        format:'bsv',
                         data: ["0x6d02", "hello world"],
                         pay: { key: privKey }
                     }
                     // 1. build initial transaction
                     paydata.build(options1, function(err, tx1) {
-                        let exported_tx1 = tx1.toString();
                         // 2. import transaction
                         // But this time, we're updating the key attribute.
                         // This should re-sign the transaction
                         paydata.build({
-                            tx: exported_tx1,
+                            tx: tx1.toHex(),
                             pay: {
                                 key: privKey
                             }
@@ -645,19 +642,17 @@ describe('paydata', function() {
                 it('tx + pay + data', function(done) {
                     const options1 = {
                         safe: false,
-
                         data: ["0x6d02", "hello world"],
                         pay: { key: privKey }
                     }
                     // 1. build initial transaction
                     paydata.build(options1, function(err, tx1) {
-                        let exported_tx1 = tx1.toString();
                         // 2. import transaction
                         // But this time, we're updating the key attribute.
                         // This should re-sign the transaction
                         paydata.build({
                             safe: false,
-                            tx: exported_tx1,
+                            tx: tx1.toHex(),
                             data: ["0x6d02", "bye world"],
                             pay: {
                                 key: privKey
