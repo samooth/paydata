@@ -571,20 +571,18 @@ describe('paydata', function() {
                     // 1. build initial transaction
                     paydata.build(options1, function(err, tx1) {
                         // 2. import transaction
-                        paydata.build({ tx: tx1.toHex() }, function(err, tx2) {
-
+                        paydata.build({ tx: tx1.toHex(),format:'bsv' }, function(err, tx2) {
                             // the imported transaction should have as many as the utxoSize
                             assert.equal(tx2.txIns.length, utxoSize)
                             // the input should have 'script' property
                             assert(tx2.txIns[0].script)
                             // the script should be public key hash in
-                            let script = tx2.txIns[0].script
+                            assert(bitcoin.Address.fromTxInScript(tx2.txIns[0].script).toString())
 
-                            assert(Address.fromTxOutScript(script) )
                             // the imported transaction's input script address should match
                             // the address corresponding to the originally imported private key
-                            const address = bitcoin.Address.fromPrivKey(bitcoin.PrivKey(privKey))
-                            assert.equal(address.toString(), bitcoin.Address.fromTxOutScript(script).toString())
+                            const address = bitcoin.Address.fromPrivKey(bitcoin.PrivKey.fromString(privKey))
+                            assert.equal(address.toString(), bitcoin.Address.fromTxInScript(tx2.txIns[0].script).toString() )
                             done()
                         })
                     })
