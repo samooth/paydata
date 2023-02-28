@@ -11,6 +11,109 @@ const defaults = {
     feeb: 0.05
 }
 
+const makeTx = (builder, address, script, options, res, callback) => {
+
+    if (!res) {
+        callback(err);
+        return;
+    }
+
+    if (!res.length) {
+        callback(new Error("Empty wallet, no utxos"))
+
+    }
+    if (options.pay.filter && options.pay.filter.q && options.pay.filter.q.find) {
+        let f = new mingo.Query(options.pay.filter.q.find)
+        res = res.filter(function(item) {
+            return f.test(item)
+        })
+    }
+
+    if (script) {
+        builder.outputToScript(new bitcoin.Bn(0), script);
+    }
+    if (options.nData) {
+        options.nData.forEach((data) => {
+            try {
+                builder.outputToScript(new bitcoin.Bn(0), _script({ data: data }));
+            } catch (e) {
+                callback(new Error(e.message))
+            }
+
+        })
+    }
+    if (options.pay && Array.isArray(options.pay.to)) {
+        options.pay.to.forEach(function(receiver) {
+            let dAddress = ""
+            if (options.testnet) {
+                dAddress = bitcoin.Address.Testnet.fromString(receiver.address)
+            } else {
+                dAddress = bitcoin.Address.fromString(receiver.address)
+            }
+            builder.outputToAddress(new bitcoin.Bn(receiver.value), dAddress)
+
+        })
+    }
+    builder.buildOutputs();
+
+    res.forEach((utxo) => {
+        const fundTxOut = bitcoin.TxOut.fromProperties(
+            new bitcoin.Bn(utxo.value || utxo.satoshis),
+            address.toTxOutScript()
+        )
+        const fundTxHashBuf = _Buffer.from(utxo.tx_hash || utxo.txid, 'hex').reverse()
+        builder.inputFromPubKeyHash(fundTxHashBuf, utxo.tx_pos || utxo.vout, fundTxOut)
+
+    })
+
+    builder.setChangeAddress(address);
+
+    // TODO: Force specific sats for tx fee
+
+    let laTx = builder.build({ useAllInputs: false })
+    //Filter the tx for some requirements
+    /*
+          for(var i=0;i<tx.outputs.length;i++){
+            if(tx.outputs[i]._satoshis>0 && tx.outputs[i]._satoshis<546){
+              tx.outputs.splice(i,1);
+              i--;
+            }
+          }
+    */
+    try {
+        const keyPairs = Array()
+        if (options.testnet) {
+
+            let privada
+            try {
+                privada = bitcoin.PrivKey.Testnet.fromString(options.pay.key)
+                privada.compressed = true
+            } catch (e) {
+                //                    console.log(e.message)
+                privada = bitcoin.PrivKey.fromString(options.pay.key)
+            }
+            keyPairs.push(bitcoin.KeyPair.Testnet.fromPrivKey(privada))
+
+        } else {
+            keyPairs.push(bitcoin.KeyPair.Mainnet.fromPrivKey(bitcoin.PrivKey.Mainnet.fromString(options.pay.key)))
+        }
+
+        builder.signWithKeyPairs(keyPairs)
+    } catch (e) {
+
+        callback(e.message)
+    }
+    // build tx
+    let opt_pay = options.pay || {};
+    // let myfee = opt_pay.fee || Math.ceil(builder.estimateSize() * (opt_pay.feeb || defaults.feeb));
+
+    // Adding option to return tx on bsv format if specified
+    let returnThis = options.format === "hex" ? builder.tx.toHex() : builder.tx;
+    callback(null, returnThis);
+
+
+}
+
 // The end goal of 'build' is to create a hex formated transaction object
 // therefore this function must end with _tx() for all cases 
 // and return a hex formatted string of either a tranaction or a script
@@ -42,9 +145,9 @@ var build = function(options, callback) {
                     callback(new Error("the transaction is already signed and cannot be modified"))
                     return;
                 }
-            }else{
-                builder.txOuts=tx.txOuts
-                builder.txOutsVi=tx.txOuts.Vi
+            } else {
+                builder.txOuts = tx.txOuts
+                builder.txOutsVi = tx.txOuts.Vi
             }
 
 
@@ -79,7 +182,7 @@ var build = function(options, callback) {
                     privateKey = bitcoin.PrivKey.fromString(key);
 
                 } catch (e) {
-                        callback(new Error(e.message))
+                    callback(new Error(e.message))
 
                 }
 
@@ -92,114 +195,11 @@ var build = function(options, callback) {
             address = bitcoin.Address.fromPrivKey(privateKey);
         }
 
-        const makeTx = (res) => {
-
-            if (!res) {
-                callback(err);
-                return;
-            }
-
-            if (!res.length) {
-                callback(new Error("Empty wallet, no utxos"))
-
-            }
-            if (options.pay.filter && options.pay.filter.q && options.pay.filter.q.find) {
-                let f = new mingo.Query(options.pay.filter.q.find)
-                res = res.filter(function(item) {
-                    return f.test(item)
-                })
-            }
-
-            if (script) {
-                builder.outputToScript(new bitcoin.Bn(0), script);
-            }
-            if (options.nData) {
-                options.nData.forEach((data) => {
-                    try {
-                        builder.outputToScript(new bitcoin.Bn(0), _script({ data: data }));
-                    } catch (e) {
-                        callback(new Error(e.message))
-                    }
-
-                })
-            }
-            if (options.pay && Array.isArray(options.pay.to)) {
-                options.pay.to.forEach(function(receiver) {
-                    let dAddress = ""
-                    if (options.testnet) {
-                        dAddress = bitcoin.Address.Testnet.fromString(receiver.address)
-                    } else {
-                        dAddress = bitcoin.Address.fromString(receiver.address)
-                    }
-                    builder.outputToAddress(new bitcoin.Bn(receiver.value), dAddress)
-
-                })
-            }
-            builder.buildOutputs();
-
-            res.forEach((utxo) => {
-                const fundTxOut = bitcoin.TxOut.fromProperties(
-                    //new bitcoin.Bn(utxo.satoshis),
-                    new bitcoin.Bn(utxo.value),
-                    address.toTxOutScript()
-                )
-                const fundTxHashBuf = _Buffer.from(utxo.tx_hash, 'hex').reverse()
-                builder.inputFromPubKeyHash(fundTxHashBuf, utxo.tx_pos, fundTxOut)
-
-            })
-
-            builder.setChangeAddress(address);
-
-            // TODO: Force specific sats for tx fee
-
-            let laTx = builder.build({ useAllInputs: false })
-            //Filter the tx for some requirements
-            /*
-                  for(var i=0;i<tx.outputs.length;i++){
-                    if(tx.outputs[i]._satoshis>0 && tx.outputs[i]._satoshis<546){
-                      tx.outputs.splice(i,1);
-                      i--;
-                    }
-                  }
-            */
-            try {
-                const keyPairs = Array()
-                if (options.testnet) {
-
-                    let privada
-                    try {
-                        privada = bitcoin.PrivKey.Testnet.fromString(options.pay.key)
-                        privada.compressed = true
-                    } catch (e) {
-                        //                    console.log(e.message)
-                        privada = bitcoin.PrivKey.fromString(options.pay.key)
-                    }
-                    keyPairs.push(bitcoin.KeyPair.Testnet.fromPrivKey(privada))
-
-                } else {
-                    keyPairs.push(bitcoin.KeyPair.Mainnet.fromPrivKey(bitcoin.PrivKey.Mainnet.fromString(options.pay.key)))
-                }
-
-                builder.signWithKeyPairs(keyPairs)
-            } catch (e) {
-                
-                callback(e.message)
-            }
-            // build tx
-            let opt_pay = options.pay || {};
-            // let myfee = opt_pay.fee || Math.ceil(builder.estimateSize() * (opt_pay.feeb || defaults.feeb));
-
-            // Adding option to return tx on bsv format if specified
-            let returnThis = options.format === "hex" ? builder.tx.toHex() : builder.tx;
-            callback(null, returnThis);
-
-
-        }
         let utxoSet = Array()
         let offset = 0
 
         explorer.utxos(address.toString(), 0, 100).then((res) => {
-            makeTx(res)
+            makeTx(builder, address, script, options, res, callback)
 
         })
 
