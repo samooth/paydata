@@ -11,8 +11,6 @@ const defaults = {
     feeb: 0.05
 }
 
-
-
 // The end goal of 'build' is to create a hex formated transaction object
 // therefore this function must end with _tx() for all cases 
 // and return a hex formatted string of either a tranaction or a script
@@ -48,12 +46,27 @@ var build = function(options, callback) {
         // key exists => create a signed transaction
         let key = options.pay.key;
 
-
-        const privateKey = bitcoin.PrivKey.fromString(key);
+        let privateKey
         let address
         if (options.testnet) {
+            try {
+                privateKey = bitcoin.PrivKey.Testnet.fromString(key);
+                privateKey.compressed=true
+            } catch (e) {
+                try {
+                    console.log(e.message)
+                    privateKey = bitcoin.PrivKey.fromString(key);
+
+                } catch (e) {
+                    console.log(e.message)
+                }
+
+            }
+
             address = bitcoin.Address.Testnet.fromPrivKey(privateKey);
+
         } else {
+            privateKey = bitcoin.PrivKey.fromString(key);
             address = bitcoin.Address.fromPrivKey(privateKey);
         }
         let network = options.testnet ? "testnet" : "mainnet";
@@ -70,7 +83,6 @@ var build = function(options, callback) {
                 callback(new Error("Empty wallet, no utxos"))
 
             }
-
             if (options.pay.filter && options.pay.filter.q && options.pay.filter.q.find) {
                 let f = new mingo.Query(options.pay.filter.q.find)
                 res = res.filter(function(item) {
@@ -82,7 +94,12 @@ var build = function(options, callback) {
             let builder = new bitcoin.TxBuilder();
             //  console.log(options)
             if (options.tx) {
-                tx = bitcoin.Tx.fromBr(new bitcoin.Br(_Buffer.from(options.tx, "hex")))
+                try{
+                    tx = bitcoin.Tx.fromBr(new bitcoin.Br(_Buffer.from(options.tx, "hex")))
+                }catch(e){
+                    callback(new Error(e.message))
+
+                }
             } else {
                 tx = new bitcoin.Tx()
             }
@@ -142,8 +159,29 @@ var build = function(options, callback) {
                     }
                   }
             */
-            const keyPairs = [bitcoin.KeyPair.fromPrivKey(bitcoin.PrivKey.fromString(options.pay.key))]
-            builder.signWithKeyPairs(keyPairs)
+            try {
+                const keyPairs = Array()
+                if (options.testnet) {
+
+                    let privada
+                    try {
+                        privada = bitcoin.PrivKey.Testnet.fromString(options.pay.key)
+                        privada.compressed = true
+                    } catch (e) {
+                        //                    console.log(e.message)
+                        privada = bitcoin.PrivKey.fromString(options.pay.key)
+                    }
+                    keyPairs.push(bitcoin.KeyPair.Testnet.fromPrivKey(privada))
+
+                } else {
+                    keyPairs.push(bitcoin.KeyPair.Mainnet.fromPrivKey(bitcoin.PrivKey.Mainnet.fromString(options.pay.key)))
+                }
+
+                builder.signWithKeyPairs(keyPairs)
+            } catch (e) {
+                console.log(e)
+                callback(e.message)
+            }
             // build tx
             let opt_pay = options.pay || {};
             // let myfee = opt_pay.fee || Math.ceil(builder.estimateSize() * (opt_pay.feeb || defaults.feeb));

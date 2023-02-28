@@ -494,13 +494,12 @@ describe('paydata', function() {
                             // tx1's output should have one item
                             assert.equal(tx1.txOuts.length, 1)
                             // and it should be an OP_RETURN
-
                             let script1 = tx1.txOuts[0].script
-
                             assert(script1.chunks[0].opCodeNum, bitcoin.OpCode.OP_RETURN)
 
                             // tx2's output should have two items
                             assert.equal(tx2.txOuts.length, 2)
+                            console.log(tx2.txOuts)
                             let script2 = [
                                 tx2.txOuts[0].script,
                                 tx2.txOuts[1].script
