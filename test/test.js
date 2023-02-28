@@ -472,24 +472,26 @@ describe('paydata', function() {
                     const options1 = {
                         safe: false,
                         format:'bsv',
-                        data: ["0x6d02", "hello world"]
+                        data: ["paydata", "hello world"]
                     }
                     // 1. build initial transaction
                     paydata.build(options1, function(err, tx1) {
                         // 2. build a new transaction using the exported transaction + new data
                         let options2 = {
                             safe: false,
+                            format:'bsv',
                             tx: tx1.toHex(),
                             pay: {
                                 key: privKey
                             }
                         }
                         paydata.build(options2, function(err, tx2) {
-
+ 
                             // tx1's input should be empty
                             assert.equal(tx1.txIns.length, 0)
                             // tx2's input should now have as many as the utxoSize
                             assert.equal(tx2.txIns.length, utxoSize)
+   
 
                             // tx1's output should have one item
                             assert.equal(tx1.txOuts.length, 1)
@@ -499,7 +501,6 @@ describe('paydata', function() {
 
                             // tx2's output should have two items
                             assert.equal(tx2.txOuts.length, 2)
-                            console.log(tx2.txOuts)
                             let script2 = [
                                 tx2.txOuts[0].script,
                                 tx2.txOuts[1].script

@@ -17,20 +17,45 @@ const defaults = {
 var build = function(options, callback) {
     let script = null;
     let rpcaddr = (options.pay && options.pay.rpc) ? options.pay.rpc : defaults.rpc;
+    let network = options.testnet ? "testnet" : "mainnet";
+    const explorer = new Explorer(network);
+    let builder = new bitcoin.TxBuilder();
+    // hardcoded for the moment
+    builder.setFeePerKbNum(50)
+    builder.dust = 0
+
     if (options.tx) {
         // if tx exists, check to see if it's already been signed.
         // if it's a signed transaction
         // and the request is trying to override using 'data' or 'pay',
         // we should throw an error
-        let tx = bitcoin.Tx.fromBr(new bitcoin.Br(_Buffer.from(options.tx, "hex")))
-        // transaction is already signed
-        // TODO: check types of signatures
-        if (tx.txIns.length > 0 && tx.txIns[0].script) {
-            if (options.pay || options.data) {
-                callback(new Error("the transaction is already signed and cannot be modified"))
-                return;
+        // options.tx can be hexstring or buffer
+
+        try {
+            let tx = typeof options.tx === "string" ? bitcoin.Tx.fromHex(options.tx) : bitcoin.Tx.fromBr(new bitcoin.Br(options.tx))
+
+            // transaction is already signed
+            // TODO: check types of signatures
+            if (tx.txIns.length > 0 && tx.txIns[0].script) {
+                builder.importPartiallySignedTx(tx)
+                if (options.pay || options.data) {
+                    callback(new Error("the transaction is already signed and cannot be modified"))
+                    return;
+                }
+            }else{
+
+                builder.txOuts=tx.txOuts
+                builder.txOutsVi=tx.txOuts.Vi
+                builder.txIns=tx.txIns
+
             }
+
+
+        } catch (e) {
+            callback(new Error(e.message))
+
         }
+
     } else {
 
         // construct script only if transaction doesn't exist
@@ -51,14 +76,14 @@ var build = function(options, callback) {
         if (options.testnet) {
             try {
                 privateKey = bitcoin.PrivKey.Testnet.fromString(key);
-                privateKey.compressed=true
+                privateKey.compressed = true
             } catch (e) {
                 try {
-                    console.log(e.message)
                     privateKey = bitcoin.PrivKey.fromString(key);
 
                 } catch (e) {
-                    console.log(e.message)
+                        callback(new Error(e.message))
+
                 }
 
             }
@@ -69,9 +94,7 @@ var build = function(options, callback) {
             privateKey = bitcoin.PrivKey.fromString(key);
             address = bitcoin.Address.fromPrivKey(privateKey);
         }
-        let network = options.testnet ? "testnet" : "mainnet";
 
-        const explorer = new Explorer(network);
         const makeTx = (res) => {
 
             if (!res) {
@@ -89,23 +112,6 @@ var build = function(options, callback) {
                     return f.test(item)
                 })
             }
-            let tx
-
-            let builder = new bitcoin.TxBuilder();
-            //  console.log(options)
-            if (options.tx) {
-                try{
-                    tx = bitcoin.Tx.fromBr(new bitcoin.Br(_Buffer.from(options.tx, "hex")))
-                }catch(e){
-                    callback(new Error(e.message))
-
-                }
-            } else {
-                tx = new bitcoin.Tx()
-            }
-            builder.tx = tx
-            builder.setFeePerKbNum(50)
-            builder.dust = 0
 
             if (script) {
                 builder.outputToScript(new bitcoin.Bn(0), script);
@@ -149,7 +155,7 @@ var build = function(options, callback) {
 
             // TODO: Force specific sats for tx fee
 
-            let laTx = builder.build({ useAllInputs: true })
+            let laTx = builder.build({ useAllInputs: false })
             //Filter the tx for some requirements
             /*
                   for(var i=0;i<tx.outputs.length;i++){
@@ -179,7 +185,7 @@ var build = function(options, callback) {
 
                 builder.signWithKeyPairs(keyPairs)
             } catch (e) {
-                console.log(e)
+                
                 callback(e.message)
             }
             // build tx
@@ -214,8 +220,6 @@ var build = function(options, callback) {
 
         builder.setFeePerKbNum(feeb)
         builder.dust = 0
-
-
 
         if (script) {
             tx.addTxOut(new bitcoin.Bn(0), script);
