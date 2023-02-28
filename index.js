@@ -43,11 +43,8 @@ var build = function(options, callback) {
                     return;
                 }
             }else{
-
                 builder.txOuts=tx.txOuts
                 builder.txOutsVi=tx.txOuts.Vi
-                builder.txIns=tx.txIns
-
             }
 
 
