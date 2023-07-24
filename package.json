@@ -2,7 +2,7 @@
   "name": "paydata",
   "version": "0.3.7",
   "description": "post data over bitcoin sv",
-  "main": "index.js",
+  "main": "dist/paydata.min.js",
   "scripts": {
     "test": "npx mocha",
     "generate-docs": "jsdoc --configure jsdoc.json --verbose -R README.md index.js",
