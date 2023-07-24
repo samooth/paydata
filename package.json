@@ -1,12 +1,19 @@
 {
   "name": "paydata",
-  "version": "0.3.4",
+  "version": "0.3.7",
   "description": "post data over bitcoin sv",
   "main": "index.js",
   "scripts": {
     "test": "npx mocha",
     "generate-docs": "jsdoc --configure jsdoc.json --verbose -R README.md index.js",
-    "build": "npx browserify index.js --standalone paydata > dist/paydata.js && uglifyjs dist/paydata.js > dist/paydata.min.js"
+    "build": "npx browserify index.js --standalone paydata > dist/paydata.js && terser --compress --mangle -- dist/paydata.js > dist/paydata.min.js"
+  },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false,
+    "fetch": false,
+    "dotenv": false
   },
   "keywords": [
     "bsv",
@@ -15,11 +22,11 @@
     "blockchain",
     "cryptocurrency"
   ],
-  "author": "@unwriter",
+  "author": "@samooth",
   "license": "MIT",
   "unpkg": "dist/paydata.min.js",
   "dependencies": {
-    "bsv": "^2.0.10",
+    "bsv": "github:samooth/bsv",
     "buffer": "^6.0.3",
     "form-data": "^4.0.0",
     "mingo": "^6.1.0",

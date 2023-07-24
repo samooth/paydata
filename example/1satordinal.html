@@ -76,6 +76,12 @@ textarea {
   color: gold;
   padding: 10px 30px;
 }
+#pubkeyHash{
+    font-family: Menlo, monaco, Courier;
+    font-size: 12px;
+    background: #2a2a2a;
+    color: white;
+}
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1">
     <script type="text/javascript" src="https://bsv.direct/lib/paydata.min.js?ta"></script>
@@ -102,36 +108,58 @@ document.addEventListener("DOMContentLoaded", function(event) {
     return false;
   }
   var update = function(html) {
+   
     var h = html.replace(/\n/g, '');
-    var opts = JSON.parse(h)    
+    let opts = JSON.parse(h);
     network = opts.testnet? "test":"main";
-
-    paydata.build(opts, function(err, tx) {
+    let pubkeyHash
+    if (opts.pay.key!==""){
+      address=bsvjs.Address.fromPubKey(bsvjs.PubKey.fromPrivKey(bsvjs.PrivKey.fromString(opts.pay.key)) )
+      pubkeyHash = "Public Key Hash: "+address.hashBuf.toString("hex")
+     
+      opts.data[2] = address.hashBuf.toString("hex")
+    }
+    pubkeyHash?document.getElementById("pubkeyHash").innerText=pubkeyHash:false;
+    document.querySelector("#send").innerHTML = "Updating tx"
+    paydata.build(JSON.parse(h), function(err, tx) {
     //  tx= bsvjs.Tx.fromBr(new bsvjs.Br(bsvjs.deps.Buffer.from(tx,"hex")))
       txEl.value = JSON.stringify(tx.toJSON(), null, 2);
       hexEl.value = tx.toHex()
       laTx=tx
+      document.querySelector("#send").innerHTML ="Broadcast Transaction"
     })
   }
+
   sendEl.onclick = function(e) {
     var t = laTx;
-    //console.log("t",t)
-
-    var isvalid = new paydata.bsv.TxVerifier({ tx: t });
-  //console.log(isvalid)
-  if (t.txIns.length>0) send(t.toHex())
-    return false;
+    if (t.txIns.length>0) send(t.toHex())
   }
+
   update(dslEl.value)
 })
 var send = function(transaction) {
- 
+  header = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  };
+
+  if (apiKey.length > 0)
+    header.apikey = apiKey;
+  //paydata.connect(network).broadcast()
+  /*
+  fetch(`${endpoint}${network}/tx/raw`, {
+    headers: header,
+    method: 'POST',
+    body: `{"${rawTxKey}": "${transaction}"}`
+  })*/
+
   console.log("Broadcasting... ",transaction)
+  document.querySelector("#send").innerHTML="Broadcasting tx..."
   paydata.connect(network).broadcast(transaction)
   .then(function(response) {
     console.log(network, response);
     if (response.hasOwnProperty("error")){
-      throw new Error(response.error)
+      document.querySelector("#send").innerHTML = response.error.msg
     }
     let prefix = network=="test" ? "test":"";
     document.querySelector("#sent").innerHTML = `<a href='https://${prefix}.whatsonchain.com/tx/${response.txid}' target='_blank'>Success! Click to view Transaction</a>`;
@@ -139,23 +167,31 @@ var send = function(transaction) {
     document.querySelector("#send").className = "hidden";
   })
 }
+/*
 
+
+*/
 </script>
 </head>
 <body>
 <div class='col'>
 <div class='header'>Transaction Description</div>
+<div id="pubkeyHash"></div>
 <textarea id='dsl'>
 {
   "testnet":true,
-   "data": [ "Hello Bitcoin" ],
+   "dataSats": 1,
+   "safe":false,
+   "opReturn":false,
+
+  "data": [{ "op": 118 }, { "op": 169 }, "ordinalOwnerPubkeyHashBuf (for hex string: 0x04f...)", { "op": 136 }, { "op": 172 }, { "op": 0 }, { "op": 99 }, "ord", { "op": 81 }, "text/plain", { "op": 0 }, "Hello Ordinals!", { "op": 104 } ],
   "pay": {
     "key": ""
   }
 }
 </textarea>
+
 </div>
-<div id='pubkeyhash'></div>
 <div class='col'>
 <div class='header'>Generated Transaction</div>
 <textarea id='tx'></textarea>
