@@ -2,22 +2,29 @@
   "name": "paydata",
   "version": "0.3.9",
   "description": "post data over bitcoin sv",
-  "main": "dist/paydata.cjs.js",
-  "module": "dist/paydata.module.js",
-  "unpkg": "dist/paydata.bundle.js",
-  "browser": "dist/paydata.min.js",
-  "library": "paydata",
   "keywords": [
-    "bsv",
-    "bitcoinsv",
+    "javascript",
+    "token",
+    "tokens",
+    "smart contract",
+    "smart contracts",
     "bitcoin",
+    "bsv",
+    "bitcoin sv",
     "blockchain",
-    "cryptocurrency"
+    "cryptocurrency",
+    "ordinals"    
   ],
-  "author": "@samooth",
+  "main":"dist/paydata.cjs.js",
+  "module":"dist/paydata.module.js",
+  "unpkg":"dist/paydata.bundle.js",
+  "browser":"dist/paydata.min.js",
   "license": "MIT",
+  "author": "@samooth",
   "dependencies": {
-    "bsv": "github:samooth/bsv",
+    "bsv": "github:samooth/bsv"
   },
   "repository": "git://github.com/samooth/paydata.git"
 }
+
+
