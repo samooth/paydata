@@ -26,11 +26,6 @@
   "license": "MIT",
   "unpkg": "dist/paydata.min.js",
   "dependencies": {
-    "bsv": "github:samooth/bsv",
-    "buffer": "^6.0.3",
-    "form-data": "^4.0.0",
-    "mingo": "^6.1.0",
-    "whatsonchain": "github:samooth/whatsonchain"
   },
   "files": [
     "dist"
