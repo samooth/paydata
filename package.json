@@ -16,7 +16,6 @@
   ],
   "author": "@samooth",
   "license": "MIT",
-  "unpkg": "dist/paydata.min.js",
   "dependencies": {
     "bsv": "github:samooth/bsv",
   },
