@@ -1,12 +1,15 @@
 {
   "name": "paydata",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "post data over bitcoin sv",
-  "main": "dist/paydata.min.js",
+  "main": "dist/paydata.cjs.js",
+  "module": "dist/paydata.module.js",
+  "unpkg": "dist/paydata.bundle.js",
+  "library": "paydata",
   "scripts": {
     "test": "npx mocha",
     "generate-docs": "jsdoc --configure jsdoc.json --verbose -R README.md index.js",
-    "build": "npx browserify index.js --standalone paydata > dist/paydata.js && terser --compress --mangle -- dist/paydata.js > dist/paydata.min.js"
+    "build": "npx webpack"
   },
   "browser": {
     "fs": false,
@@ -25,8 +28,6 @@
   "author": "@samooth",
   "license": "MIT",
   "unpkg": "dist/paydata.min.js",
-  "dependencies": {
-  },
   "files": [
     "dist"
   ],
@@ -38,7 +39,11 @@
     "mocha": "^10.0.0",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
-    "uglify-es": "^3.3.9",
-    "util": "^0.12.4"
+    "util": "^0.12.4",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "bsv": "github:samooth/bsv",
+    "mingo": "^6.4.3"
   }
 }
