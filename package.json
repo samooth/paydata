@@ -21,9 +21,6 @@
   "browser":"dist/paydata.min.js",
   "license": "MIT",
   "author": "@samooth",
-  "dependencies": {
-    "bsv": "github:samooth/bsv"
-  },
   "repository": "git://github.com/samooth/paydata.git"
 }
 
