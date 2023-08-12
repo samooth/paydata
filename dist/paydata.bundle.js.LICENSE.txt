@@ -7,6 +7,8 @@
 
 /*! For license information please see bsv.module.js.LICENSE.txt */
 
+/*! For license information please see explorer.module.js.LICENSE.txt */
+
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
