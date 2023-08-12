@@ -271,6 +271,71 @@ paydata.send({
 
 ---
 
+
+
+### A. pay
+
+The `pay` attribute deals with everything related to actually sending money.
+
+- `key`: Signing with private key
+- `to`: Attaching tips on top of OP_RETURN messages (Normally OP_RETURN transactions don't have a receiver)
+
+When a `pay` attribute is present, the `build()` call generates a `transaction` instead of a `script`.
+
+#### 1. `key`
+
+The `key` attribute is mandatory. You must specify a private key in order to sign a transaction.
+
+```
+const tx = {
+  safe: true,
+  data: ["0x6d02", "hello world"],
+  pay: { key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw" }
+}
+paydata.build(tx, function(err, tx) {
+  /**
+  * res contains the generated transaction object
+  * (a signed transaction, since 'key' is included)
+  **/
+})
+```
+
+
+
+#### 2. `to`
+
+The `to` attribute is an array of receivers to send the OP_RETURN to. Normally this is left empty because most `OP_RETURN` transactions are meant to have no receivers. But you can also send it to multiple users. For example you can use this feature to send tips to one or more people.
+
+- default: `null`
+- Each item in the `to` array can have 2 attributes:
+  - address: Bitcoin SV address string
+  - value: number (in satoshi)
+
+```
+const tx = {
+  safe: true,
+  pay: {
+    key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw",
+    to: [{
+      address: "1A2JN4JAUoKCQ5kA4pHhu4qCqma8jZSU81",
+      value: 500
+    }, {
+      address: "1A2JN4JAUoKCQ5kA4pHhu4qCqma8jZSU81",
+      value: 500
+    }]
+  },
+  data: ["0x6d02", "hello world"]
+};
+paydata.build(tx, function(err, res) {
+  /**
+  * res contains the generated transaction object
+  * (a signed transaction, since 'key' is included.
+  * Also, the transaction includes actual coin transfer outputs,
+  * since the "to" attribute is included)
+  **/
+})
+```
+
 ### B. data
 
 The `data` attribute is used to construct human readable/processable data to post to the blockchain.
@@ -373,70 +438,6 @@ paydata.build(tx, function(err, tx) {
 ```
 
 ---
-
-### A. pay
-
-The `pay` attribute deals with everything related to actually sending money.
-
-- `key`: Signing with private key
-- `to`: Attaching tips on top of OP_RETURN messages (Normally OP_RETURN transactions don't have a receiver)
-
-When a `pay` attribute is present, the `build()` call generates a `transaction` instead of a `script`.
-
-#### 1. `key`
-
-The `key` attribute is mandatory. You must specify a private key in order to sign a transaction.
-
-```
-const tx = {
-  safe: true,
-  data: ["0x6d02", "hello world"],
-  pay: { key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw" }
-}
-paydata.build(tx, function(err, tx) {
-  /**
-  * res contains the generated transaction object
-  * (a signed transaction, since 'key' is included)
-  **/
-})
-```
-
-
-
-#### 2. `to`
-
-The `to` attribute is an array of receivers to send the OP_RETURN to. Normally this is left empty because most `OP_RETURN` transactions are meant to have no receivers. But you can also send it to multiple users. For example you can use this feature to send tips to one or more people.
-
-- default: `null`
-- Each item in the `to` array can have 2 attributes:
-  - address: Bitcoin SV address string
-  - value: number (in satoshi)
-
-```
-const tx = {
-  safe: true,
-  pay: {
-    key: "5JZ4RXH4MoXpaUQMcJHo8DxhZtkf5U5VnYd9zZH8BRKZuAbxZEw",
-    to: [{
-      address: "1A2JN4JAUoKCQ5kA4pHhu4qCqma8jZSU81",
-      value: 500
-    }, {
-      address: "1A2JN4JAUoKCQ5kA4pHhu4qCqma8jZSU81",
-      value: 500
-    }]
-  },
-  data: ["0x6d02", "hello world"]
-};
-paydata.build(tx, function(err, res) {
-  /**
-  * res contains the generated transaction object
-  * (a signed transaction, since 'key' is included.
-  * Also, the transaction includes actual coin transfer outputs,
-  * since the "to" attribute is included)
-  **/
-})
-```
-
 
 ### General arguments
 
